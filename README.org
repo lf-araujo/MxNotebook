@@ -1,9 +1,9 @@
-#+TITLE: Notebook system for the Mx team
 #+AUTHOR: lf-araujo 
+#+TITLE: Notebook system for the Mx team
 #+OPTIONS: toc:2
 #+PROPERTY: header-args :tangle init.el
 
-*Abstract |* A Notebook system based on Emacs borrowing from existing config files. This system is supposed to work out of a single org file and be as easy as possible for non-emacs users to feel reasonably at home. It handles analyses in any language supported by org and through any server with an ssh interface. It's digital paper that can be shared once analyses are finished, which helps provide a way of transparent review/aditing of statistical analyses. This configuration provides a more complete set of functionality than jupyter, with less hassle.
+*Abstract |* A Notebook system based on Emacs borrowing from existing config files. This system  works out of a single org file as an attempt to be as easy as possible for non-emacs users. It handles analyses in any language supported by org and through any server with a ssh interface. It's digital paper that can be shared once analyses are finished, which helps providing a way for transparent review/auditing of statistical analyses. This configuration provides a more complete set of functionality than jupyter, with less hassle.
 
 * TOC :toc:
 
@@ -19,13 +19,11 @@ It was created in order to simplify Emacs use as a server-ready Notebook.
 * Running
 
 - In order to run this you need =emacs -q -f org-babel-load-file= and select this README.org.
-
 - Not all packages are auto-installed, so pay attention to the warnings and manually install them with =Alt-X package-install=.
-
 - Vim mode is available, but not enabled. In order to enable it, go to the vim mode section and set eval to yes.
-
 - All you can ever need is listed in =Alt-X=.
-
+- Once done with analyses provide the link to your repo in your paper
+  
 * The notebook in action
 
 [[graphs/notebook.gif]]
@@ -34,7 +32,7 @@ It was created in order to simplify Emacs use as a server-ready Notebook.
 
 *** You can have your plots displayed 
 #+header: :width 1500 :height 600 :res 110
-#+BEGIN_SRC R :exports both :results output graphics file :file graphs/scatter.png
+#+BEGIN_SRC R :exports both :session test :results output graphics file :file graphs/scatter.png
 # install.packages("ggplot2")
 # load package and data
 options(scipen=999)  # turn-off scientific notation like 1e+48
@@ -119,6 +117,7 @@ print(tableOne)
 | 35 (22.2)         | 32 (20.8)         |       |
 | 56 (35.4)         | 64 (41.6)         |       |
 | 55 (34.8)         | 54 (35.1)         |       |
+
 
 ** You can leave the notebook, zoom into your code and program interactivelly
 
