@@ -2,10 +2,11 @@
 #+TITLE: Notebook system for the Mx team
 #+OPTIONS: toc:2
 #+PROPERTY: header-args :tangle init.el
+#+STARTUP: latexpreview
 
-*Abstract |* A Notebook system based on Emacs borrowing from existing config files. This system  works out of a single org file as an attempt to be as easy as possible for non-emacs users. It handles analyses in any language supported by org and through any server with a ssh interface. It's digital paper that can be shared once analyses are finished, which helps providing a way for transparent review/auditing of statistical analyses. This configuration provides a more complete set of functionality than jupyter, with less hassle.
+*Abstract |* A Notebook system based on Emacs borrowing from existing config files. This system  works from a single org file as an attempt to be as easy as possible for non-emacs users. It handles analyses in any language supported by org and through any server with a ssh interface. Since, its contents (an org file) are automatically rendered in Github or similar, it is trivial to share analyses results with reviewers and auditors, thus providing a way for transparent review/auditing of statistical analyses. This configuration provides a more complete set of functionality than jupyter, with less hassle.
 
-* TOC :toc:
+* TOC                                                               :toc:
 
 
 This project is heavily inspired by existing configs:
@@ -19,9 +20,10 @@ It was created in order to simplify Emacs use as a server-ready Notebook.
 * Running
 
 - In order to run this you need =emacs -q -f org-babel-load-file= and select this README.org.
-- Not all packages are auto-installed, so pay attention to the warnings and manually install them with =Alt-X package-install=.
-- Vim mode is available, but not enabled. In order to enable it, go to the vim mode section and set eval to yes.
-- All you can ever need is listed in =Alt-X=.
+- Although most packages will be installed in the first run, pay attention to the warnings and manually install them with =Ctrl-Shift-P package-install=.
+- The first run will take some time to compile packages.
+- Vim mode is available, but not enabled. In order to enable it, go to the vim mode section and set :eval yes.
+- All you can ever need is listed in =Ctrl-Shift-P package-install=.
 - Once done with analyses provide the link to your repo in your paper
   
 * The notebook in action
@@ -31,29 +33,28 @@ It was created in order to simplify Emacs use as a server-ready Notebook.
 ** The general interface of the Notebook
 
 *** You can have your plots displayed 
+
 #+header: :width 1500 :height 600 :res 110
-#+BEGIN_SRC R :exports both :session test :results output graphics file :file graphs/scatter.png
-# install.packages("ggplot2")
-# load package and data
-options(scipen=999)  # turn-off scientific notation like 1e+48
-library(ggplot2)
-theme_set(theme_bw())  # pre-set the bw theme.
-data("midwest", package = "ggplot2")
-# midwest <- read.csv("http://goo.gl/G1K41K")  # bkup data source
+#+BEGIN_SRC R :session test :results output graphics file :file graphs/scatter.png
+  # load package and data
+  options(scipen=999)  # turn-off scientific notation like 1e+48
+  library(ggplot2)
+  theme_set(theme_bw())  # pre-set the bw theme.
+  data("midwest", package = "ggplot2")
 
-# Scatterplot
-gg <- ggplot(midwest, aes(x=area, y=poptotal)) + 
-  geom_point(aes(col=state, size=popdensity)) + 
-  geom_smooth(method="loess", se=F) + 
-  xlim(c(0, 0.1)) + 
-  ylim(c(0, 500000)) + 
-  labs(subtitle="Area Vs Population", 
-       y="Population", 
-       x="Area", 
-       title="Scatterplot", 
-       caption = "Source: midwest")
+  # Scatterplot
+  gg <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+    geom_point(aes(col=state, size=popdensity)) + 
+    geom_smooth(method="loess", se=F) + 
+    xlim(c(0, 0.1)) + 
+    ylim(c(0, 500000)) + 
+    labs(subtitle="Area Vs Population", 
+         y="Population", 
+         x="Area", 
+         title="Scatterplot", 
+         caption = "Source: midwest")
 
-plot(gg)
+  plot(gg)
 #+end_src
 
 #+RESULTS:
@@ -129,7 +130,7 @@ print(tableOne)
 | one | 1 | 2 | 3 | 4 |  5 |
 | two | 6 | 7 | 8 | 9 | 10 |
 
-#+BEGIN_SRC R :session test :var tab=with-rownames :rownames yes
+#+BEGIN_SRC R :var tab=with-rownames :rownames yes
 print(tab)
 #+END_SRC
 
@@ -146,422 +147,447 @@ Just use =M-x notebook-export-html=, this functionality was slightly modified us
 
 * Limitations
 
-Although knowing to work in Emacs is not required (since which-key is active, and doing anything is really a matter of hitting =M-x=), Emacs bindings are too complex. I'd like to find a more sensible way to access the functionality. 
+Although knowing to work in Emacs is not required (since which-key is active, and doing anything is really a matter of hitting =Ctrl-Shift-P=), Emacs bindings are too complex. I am still thinking on how to make keybindings more accessible.  
 
 * TODO
 
 - [ ] Simplify keybindings.
 - [ ] Magit workflow to easily share notebooks within the interface
+- [ ] Figure out why svg-tag-mode does not load in the first try completely
+- [ ] Figure out why :toc: is not autopopulating 
 
 * General configuration
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :session test :tangle yes
 
-        ;;; Guardrail
+  ;;; Guardrail
 
-        (when (< emacs-major-version 29)
-          (error (format "Emacs Bedrock only works with Emacs 29 and newer; you have version ~a" emacs-major-version)))
+  (when (< emacs-major-version 29)
+    (error (format "Emacs Bedrock only works with Emacs 29 and newer; you have version ~a" emacs-major-version)))
 
 
 
-        ;; This initializes the packages for when one is reading the org file directly
-        (package-initialize)
+  ;; This initializes the packages for when one is reading the org file directly
+  (package-initialize)
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;;
-        ;;;   Basic settings
-        ;;;
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+          ;;;
+          ;;;   Basic settings
+          ;;;
+          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-        ;; Package initialization
-        ;;
-        ;; We'll stick to the built-in GNU and non-GNU ELPAs (Emacs Lisp Package
-        ;; Archive) for the base install, but there are some other ELPAs you could look
-        ;; at if you want more packages. MELPA in particular is very popular. See
-        ;; instructions at:
-        ;;
-        ;;    https://melpa.org/#/getting-started
-        ;;
-        ;; You can simply uncomment the following if you'd like to get started with
-        ;; MELPA packages quickly:
-        ;;
-        (with-eval-after-load 'package
-          (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
+  ;; Package initialization
+  ;;
+  ;; We'll stick to the built-in GNU and non-GNU ELPAs (Emacs Lisp Package
+  ;; Archive) for the base install, but there are some other ELPAs you could look
+  ;; at if you want more packages. MELPA in particular is very popular. See
+  ;; instructions at:
+  ;;
+  ;;    https://melpa.org/#/getting-started
+  ;;
+  ;; You can simply uncomment the following if you'd like to get started with
+  ;; MELPA packages quickly:
+  ;;
+  (with-eval-after-load 'package
+    (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
 
-        ;; If you want to turn off the welcome screen, uncomment this
-        ;(setopt inhibit-splash-screen t)
+  ;; If you want to turn off the welcome screen, uncomment this
+  ;(setopt inhibit-splash-screen t)
 
-        (setopt initial-major-mode 'fundamental-mode)  ; default mode for the *scratch* buffer
-        (setopt display-time-default-load-average nil) ; this information is useless for most
+  (setopt initial-major-mode 'fundamental-mode)  ; default mode for the *scratch* buffer
+  (setopt display-time-default-load-average nil) ; this information is useless for most
 
-        ;; Automatically reread from disk if the underlying file changes
-        (setopt auto-revert-avoid-polling t)
-        ;; Some systems don't do file notifications well; see
-        ;; https://todo.sr.ht/~ashton314/emacs-bedrock/11
-        (setopt auto-revert-interval 5)
-        (setopt auto-revert-check-vc-info t)
-        (global-auto-revert-mode)
+  ;; Automatically reread from disk if the underlying file changes
+  (setopt auto-revert-avoid-polling t)
+  ;; Some systems don't do file notifications well; see
+  ;; https://todo.sr.ht/~ashton314/emacs-bedrock/11
+  (setopt auto-revert-interval 5)
+  (setopt auto-revert-check-vc-info t)
+  (global-auto-revert-mode)
 
-        ;; Save history of minibuffer
-        (savehist-mode)
+  ;; Save history of minibuffer
+  (savehist-mode)
 
-        ;; Move through windows with Ctrl-<arrow keys>
-        (windmove-default-keybindings 'control) ; You can use other modifiers here
+  ;; Move through windows with Ctrl-<arrow keys>
+  (windmove-default-keybindings 'control) ; You can use other modifiers here
 
-        ;; Fix archaic defaults
-        (setopt sentence-end-double-space nil)
+  ;; Fix archaic defaults
+  (setopt sentence-end-double-space nil)
 
-        ;; Make right-click do something sensible
-        (when (display-graphic-p)
-          (context-menu-mode))
+  ;; Make right-click do something sensible
+  (when (display-graphic-p)
+    (context-menu-mode))
 
-        ;; Don't litter file system with *~ backup files; put them all inside
-        ;; ~/.emacs.d/backup or wherever
-        (defun bedrock--backup-file-name (fpath)
-          "Return a new file path of a given file path.
-        If the new path's directories does not exist, create them."
-          (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
-                 (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
-                 (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
-            (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
-            backupFilePath))
-        (setopt make-backup-file-name-function 'bedrock--backup-file-name)
+  ; Disable the bell
+  (setq ring-bell-function 'ignore)
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;;
-        ;;;   Discovery aids
-        ;;;
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Don't litter file system with *~ backup files; put them all inside
+  ;; ~/.emacs.d/backup or wherever
+  (defun bedrock--backup-file-name (fpath)
+    "Return a new file path of a given file path.
+          If the new path's directories does not exist, create them."
+    (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
+           (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
+           (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
+      (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
+      backupFilePath))
+  (setopt make-backup-file-name-function 'bedrock--backup-file-name)
 
-        ;; Show the help buffer after startup
-        ;;(add-hook 'after-init-hook 'help-quick)
-    ;;(setq inhibit-startup-screen t
+  (set-face-attribute 'default nil :height 150)  ; set font size
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Discovery aids
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; Show the help buffer after startup
+  ;;(add-hook 'after-init-hook 'help-quick)
+  ;;(setq inhibit-startup-screen t
   ;;	initial-buffer-choice  nil)
 
-        ;; which-key: shows a popup of available keybindings when typing a long key
-        ;; sequence (e.g. C-x ...)
-        (use-package which-key
-          :ensure t
-          :config
-          (which-key-mode))
+  ;; which-key: shows a popup of available keybindings when typing a long key
+  ;; sequence (e.g. C-x ...)
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-mode))
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Minibuffer/completion settings
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; For help, see: https://www.masteringemacs.org/article/understanding-minibuffer-completion
+
+  (setopt enable-recursive-minibuffers t)                ; Use the minibuffer whilst in the minibuffer
+  (setopt completion-cycle-threshold 1)                  ; TAB cycles candidates
+  (setopt completions-detailed t)                        ; Show annotations
+  (setopt tab-always-indent 'complete)                   ; When I hit TAB, try to complete, otherwise, indent
+  (setopt completion-styles '(basic initials substring)) ; Different styles to match input to candidates
+
+  (setopt completion-auto-help 'always)                  ; Open completion always; `lazy' another option
+  (setopt completions-max-height 20)                     ; This is arbitrary
+  (setopt completions-detailed t)
+  (setopt completions-format 'one-column)
+  (setopt completions-group t)
+  (setopt completion-auto-select 'second-tab)            ; Much more eager
+                                          ;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
+
+  (keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
+
+  ;; some global key bindings
+  (global-set-key (kbd "C-S-p") 'execute-extended-command)
+  (global-set-key (kbd "C-f") 'isearch-forward)
+  (global-set-key (kbd "C-S-f") 'isearch-backward)
+  (global-set-key (kbd "C-s") 'save-buffer)
+  (global-set-key (kbd "C-s") 'save-buffer)
+  (define-key minibuffer-local-map (kbd "C-S-p") 'keyboard-escape-quit)
+
+  ;; For a fancier built-in completion option, try ido-mode,
+  ;; icomplete-vertical, or fido-mode. See also the file extras/base.el
+
+  ;(icomplete-vertical-mode)
+  ;(fido-vertical-mode)
+  ;(setopt icomplete-delay-completions-threshold 4000)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Interface enhancements/defaults
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; Mode line information
+  (setopt line-number-mode t)                        ; Show current line in modeline
+  (setopt column-number-mode t)                      ; Show column as well
+
+  (setopt x-underline-at-descent-line nil)           ; Prettier underlines
+  (setopt switch-to-buffer-obey-display-actions t)   ; Make switching buffers more consistent
+
+  (setopt show-trailing-whitespace nil)      ; By default, don't underline trailing spaces
+  (setopt indicate-buffer-boundaries 'left)  ; Show buffer top and bottom in the margin
+
+  ;; Enable horizontal scrolling
+  (setopt mouse-wheel-tilt-scroll t)
+  (setopt mouse-wheel-flip-direction t)
+
+  ;; We won't set these, but they're good to know about
+  ;;
+  ;; (setopt indent-tabs-mode nil)
+  ;; (setopt tab-width 4)
+
+  ;; Misc. UI tweaks
+  (blink-cursor-mode -1)                                ; Steady cursor
+  (pixel-scroll-precision-mode)                         ; Smooth scrolling
+
+  ;; Use common keystrokes by default
+  (cua-mode)
+
+  ;; Display line numbers in programming mode
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (setopt display-line-numbers-width 3)           ; Set a minimum width
+
+  ;; Nice line wrapping when working with text
+  (add-hook 'text-mode-hook 'visual-line-mode)
+
+  ;; Modes to highlight the current line with
+  (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
+    (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
+
+  ;; remove scroll-bar
+  ;;(scroll-bar-mode -1)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Tab-bar configuration
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; Show the tab-bar as soon as tab-bar functions are invoked
+  (setopt tab-bar-show 1)
+
+  ;; Add the time to the tab-bar, if visible
+  (add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
+  (add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
+  (setopt display-time-format "%a %F %T")
+  (setopt display-time-interval 1)
+  (display-time-mode)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Theme
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (use-package emacs
+    :config
+    (load-theme 'modus-operandi))          ; for light theme, use modus-operandi
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Built-in customization framework
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(custom-enabled-themes '(modus-operandi))
+   '(package-selected-packages '(org-roam citar ess evil which-key)))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   )
+
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Motion aids
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (use-package avy
+    :ensure t
+    :demand t
+    :bind (("C-c j" . avy-goto-line)
+           ("S-j"   . avy-goto-char-timer)))
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Power-ups: Embark and Consult
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; Consult: Misc. enhanced commands
+  (use-package consult
+    :ensure t
+    :bind (
+           ;; Drop-in replacements
+           ("C-x b" . consult-buffer)     ; orig. switch-to-buffer
+           ("M-y"   . consult-yank-pop)   ; orig. yank-pop
+           ;; Searching
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)       ; Alternative: rebind C-s to use
+           ("M-s s" . consult-line)       ; consult-line instead of isearch, bind
+           ("M-s L" . consult-line-multi) ; isearch to M-s s
+           ("M-s o" . consult-outline)
+           ;; Isearch integration
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)   ; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history) ; orig. isearch-edit-string
+           ("M-s l" . consult-line)            ; needed by consult-line to detect isearch
+           ("M-s L" . consult-line-multi)      ; needed by consult-line to detect isearch
+           )
+    :config
+    ;; Narrowing lets you restrict results to certain groups of candidates
+    (setq consult-narrow-key "<"))
+
+  (use-package embark-consult
+    :ensure t
+    :after embark
+    :after consult
+  )
+
+  (use-package embark
+    :ensure t
+    :demand t
+    :after avy
+    :bind (("C-c a" . embark-act))        ; bind this to an easy key to hit
+    :init
+    ;; Add the option to run embark when using avy
+    (defun bedrock/avy-action-embark (pt)
+      (unwind-protect
+          (save-excursion
+            (goto-char pt)
+            (embark-act))
+        (select-window
+         (cdr (ring-ref avy-ring 0))))
+      t)
+
+    ;; After invoking avy-goto-char-timer, hit "." to run embark at the next
+    ;; candidate you select
+    (setf (alist-get ?. avy-dispatch-alist) 'bedrock/avy-action-embark))
+
+  (use-package embark-consult
+    :ensure t)
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;;
-        ;;;   Minibuffer/completion settings
+        ;;;   Minibuffer and completion
         ;;;
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-        ;; For help, see: https://www.masteringemacs.org/article/understanding-minibuffer-completion
+  ;; Vertico: better vertical completion for minibuffer commands
+  (use-package vertico
+    :ensure t
+    :init
+    ;; You'll want to make sure that e.g. fido-mode isn't enabled
+    (vertico-mode))
 
-        (setopt enable-recursive-minibuffers t)                ; Use the minibuffer whilst in the minibuffer
-        (setopt completion-cycle-threshold 1)                  ; TAB cycles candidates
-        (setopt completions-detailed t)                        ; Show annotations
-        (setopt tab-always-indent 'complete)                   ; When I hit TAB, try to complete, otherwise, indent
-        (setopt completion-styles '(basic initials substring)) ; Different styles to match input to candidates
+  (use-package vertico-directory
+    :ensure nil
+    :after vertico
+    :bind (:map vertico-map
+                ("M-DEL" . vertico-directory-delete-word)))
 
-        (setopt completion-auto-help 'always)                  ; Open completion always; `lazy' another option
-        (setopt completions-max-height 20)                     ; This is arbitrary
-        (setopt completions-detailed t)
-        (setopt completions-format 'one-column)
-        (setopt completions-group t)
-        (setopt completion-auto-select 'second-tab)            ; Much more eager
-        ;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
+  ;; Marginalia: annotations for minibuffer
+  (use-package marginalia
+    :ensure t
+    :config
+    (marginalia-mode))
 
-        (keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
+  ;; Popup completion-at-point
+  (use-package corfu
+    :ensure t
+    :init
+    (global-corfu-mode)
+    :custom
+    (corfu-auto t)                 ;; Enable auto completion
+    :bind
+    (:map corfu-map
+          ("SPC" . corfu-insert-separator)
+          ("C-n" . corfu-next)
+          ("C-p" . corfu-previous)))
 
-        ;;(keymap-global-set (kbd "C-p") 'execute-extended-command) ; sublime like ctrl-p
+  ;; Part of corfu
+  (use-package corfu-popupinfo
+    :after corfu
+    :ensure  nil
+    :hook (corfu-mode . corfu-popupinfo-mode)
+    :custom
+    (corfu-popupinfo-delay '(0.25 . 0.1))
+    (corfu-popupinfo-hide nil)
+    :config
+    (corfu-popupinfo-mode))
 
+  ;; Make corfu popup come up in terminal overlay
+  (use-package corfu-terminal
+    :if (not (display-graphic-p))
+    :ensure t
+    :config
+    (corfu-terminal-mode))
 
+  ;; Fancy completion-at-point functions; there's too much in the cape package to
+  ;; configure here; dive in when you're comfortable!
+  (use-package cape
+    :ensure t
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file))
 
-        ;; For a fancier built-in completion option, try ido-mode,
-        ;; icomplete-vertical, or fido-mode. See also the file extras/base.el
+  ;; Pretty icons for corfu
+  (use-package kind-icon
+    :if (display-graphic-p)
+    :ensure t
+    :after corfu
+    :config
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-        ;(icomplete-vertical-mode)
-        ;(fido-vertical-mode)
-        ;(setopt icomplete-delay-completions-threshold 4000)
+  (use-package eshell
+    :init
+    (defun bedrock/setup-eshell ()
+      ;; Something funny is going on with how Eshell sets up its keymaps; this is
+      ;; a work-around to make C-r bound in the keymap
+      (keymap-set eshell-mode-map "C-r" 'consult-history))
+    :hook ((eshell-mode . bedrock/setup-eshell)))
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;;
-        ;;;   Interface enhancements/defaults
-        ;;;
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-        ;; Mode line information
-        (setopt line-number-mode t)                        ; Show current line in modeline
-        (setopt column-number-mode t)                      ; Show column as well
-
-        (setopt x-underline-at-descent-line nil)           ; Prettier underlines
-        (setopt switch-to-buffer-obey-display-actions t)   ; Make switching buffers more consistent
-
-        (setopt show-trailing-whitespace nil)      ; By default, don't underline trailing spaces
-        (setopt indicate-buffer-boundaries 'left)  ; Show buffer top and bottom in the margin
-
-        ;; Enable horizontal scrolling
-        (setopt mouse-wheel-tilt-scroll t)
-        (setopt mouse-wheel-flip-direction t)
-
-        ;; We won't set these, but they're good to know about
-        ;;
-        ;; (setopt indent-tabs-mode nil)
-        ;; (setopt tab-width 4)
-
-        ;; Misc. UI tweaks
-        (blink-cursor-mode -1)                                ; Steady cursor
-        (pixel-scroll-precision-mode)                         ; Smooth scrolling
-
-        ;; Use common keystrokes by default
-        (cua-mode)
-
-        ;; Display line numbers in programming mode
-        (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-        (setopt display-line-numbers-width 3)           ; Set a minimum width
-
-        ;; Nice line wrapping when working with text
-        (add-hook 'text-mode-hook 'visual-line-mode)
-
-        ;; Modes to highlight the current line with
-        (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
-          (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
-
-
-        ;; remove scroll-bar
-        ;;(scroll-bar-mode -1)
-
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;;
-        ;;;   Tab-bar configuration
-        ;;;
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-        ;; Show the tab-bar as soon as tab-bar functions are invoked
-        (setopt tab-bar-show 1)
-
-        ;; Add the time to the tab-bar, if visible
-        (add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
-        (add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
-        (setopt display-time-format "%a %F %T")
-        (setopt display-time-interval 1)
-        (display-time-mode)
+  ;; Orderless: powerful completion style
+  (use-package orderless
+    :ensure t
+    :config
+    (setq completion-styles '(orderless)))
 
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         ;;;
-        ;;;   Theme
+        ;;;   Misc. editing enhancements
         ;;;
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-        (use-package emacs
-          :config
-          (load-theme 'modus-operandi))          ; for light theme, use modus-operandi
+  ;; Modify search results en masse
+  (use-package wgrep
+    :ensure t
+    :config
+    (setq wgrep-auto-save-buffer t))
 
-
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;;
-        ;;;   Built-in customization framework
-        ;;;
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-        (custom-set-variables
-         ;; custom-set-variables was added by Custom.
-         ;; If you edit it by hand, you could mess it up, so be careful.
-         ;; Your init file should contain only one such instance.
-         ;; If there is more than one, they won't work right.
-         '(custom-enabled-themes '(modus-operandi))
-         '(package-selected-packages '(org-roam citar ess evil which-key)))
-        (custom-set-faces
-         ;; custom-set-faces was added by Custom.
-         ;; If you edit it by hand, you could mess it up, so be careful.
-         ;; Your init file should contain only one such instance.
-         ;; If there is more than one, they won't work right.
-         )
-
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      ;;;
-      ;;;   Motion aids
-      ;;;
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-      (use-package avy
-        :ensure t
-        :demand t
-        :bind (("C-c j" . avy-goto-line)
-               ("s-j"   . avy-goto-char-timer)))
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      ;;;
-      ;;;   Power-ups: Embark and Consult
-      ;;;
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-      ;; Consult: Misc. enhanced commands
-      (use-package consult
-        :ensure t
-        :bind (
-               ;; Drop-in replacements
-               ("C-x b" . consult-buffer)     ; orig. switch-to-buffer
-               ("M-y"   . consult-yank-pop)   ; orig. yank-pop
-               ;; Searching
-               ("M-s r" . consult-ripgrep)
-               ("M-s l" . consult-line)       ; Alternative: rebind C-s to use
-               ("M-s s" . consult-line)       ; consult-line instead of isearch, bind
-               ("M-s L" . consult-line-multi) ; isearch to M-s s
-               ("M-s o" . consult-outline)
-               ;; Isearch integration
-               :map isearch-mode-map
-               ("M-e" . consult-isearch-history)   ; orig. isearch-edit-string
-               ("M-s e" . consult-isearch-history) ; orig. isearch-edit-string
-               ("M-s l" . consult-line)            ; needed by consult-line to detect isearch
-               ("M-s L" . consult-line-multi)      ; needed by consult-line to detect isearch
-               )
-        :config
-        ;; Narrowing lets you restrict results to certain groups of candidates
-        (setq consult-narrow-key "<"))
-
-      (use-package embark
-        :ensure t
-        :demand t
-        :after avy
-        :bind (("C-c a" . embark-act))        ; bind this to an easy key to hit
-        :init
-        ;; Add the option to run embark when using avy
-        (defun bedrock/avy-action-embark (pt)
-          (unwind-protect
-              (save-excursion
-                (goto-char pt)
-                (embark-act))
-            (select-window
-             (cdr (ring-ref avy-ring 0))))
-          t)
-
-        ;; After invoking avy-goto-char-timer, hit "." to run embark at the next
-        ;; candidate you select
-        (setf (alist-get ?. avy-dispatch-alist) 'bedrock/avy-action-embark))
-
-      (use-package embark-consult
-        :ensure t)
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      ;;;
-      ;;;   Minibuffer and completion
-      ;;;
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-      ;; Vertico: better vertical completion for minibuffer commands
-      (use-package vertico
-        :ensure t
-        :init
-        ;; You'll want to make sure that e.g. fido-mode isn't enabled
-        (vertico-mode))
-
-      (use-package vertico-directory
-        :ensure nil
-        :after vertico
-        :bind (:map vertico-map
-                    ("M-DEL" . vertico-directory-delete-word)))
-
-      ;; Marginalia: annotations for minibuffer
-      (use-package marginalia
-        :ensure t
-        :config
-        (marginalia-mode))
-
-      ;; Popup completion-at-point
-      (use-package corfu
-        :ensure t
-        :init
-        (global-corfu-mode)
-        :bind
-        (:map corfu-map
-              ("SPC" . corfu-insert-separator)
-              ("C-n" . corfu-next)
-              ("C-p" . corfu-previous)))
-
-      ;; Part of corfu
-      (use-package corfu-popupinfo
-        :after corfu
-        :ensure nil
-        :hook (corfu-mode . corfu-popupinfo-mode)
-        :custom
-        (corfu-popupinfo-delay '(0.25 . 0.1))
-        (corfu-popupinfo-hide nil)
-        :config
-        (corfu-popupinfo-mode))
-
-      ;; Make corfu popup come up in terminal overlay
-      (use-package corfu-terminal
-        :if (not (display-graphic-p))
-        :ensure t
-        :config
-        (corfu-terminal-mode))
-
-      ;; Fancy completion-at-point functions; there's too much in the cape package to
-      ;; configure here; dive in when you're comfortable!
-      (use-package cape
-        :ensure t
-        :init
-        (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-        (add-to-list 'completion-at-point-functions #'cape-file))
-
-      ;; Pretty icons for corfu
-      (use-package kind-icon
-        :if (display-graphic-p)
-        :ensure t
-        :after corfu
-        :config
-        (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-
-      (use-package eshell
-        :init
-        (defun bedrock/setup-eshell ()
-          ;; Something funny is going on with how Eshell sets up its keymaps; this is
-          ;; a work-around to make C-r bound in the keymap
-          (keymap-set eshell-mode-map "C-r" 'consult-history))
-        :hook ((eshell-mode . bedrock/setup-eshell)))
-
-      ;; Orderless: powerful completion style
-      (use-package orderless
-        :ensure t
-        :config
-        (setq completion-styles '(orderless)))
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      ;;;
-      ;;;   Misc. editing enhancements
-      ;;;
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-      ;; Modify search results en masse
-      (use-package wgrep
-        :ensure t
-        :config
-        (setq wgrep-auto-save-buffer t))
-
-    (which-key-show-top-level)
+  (which-key-show-top-level)
 
 #+end_src
 
 
-* Configure TRAMP to the server
+* Configure TRAMP to your server
 
-#+begin_src emacs-lisp :tangle yes
-    (require 'tramp)
-  (eval-after-load 'tramp '(setenv "NCPUS" "23"))
-  (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))
+#+begin_src emacs-lisp :tangle yes :results output none
+  (use-package tramp
+   :ensure t
+   :custom
+     (eval-after-load 'tramp '(setenv "NCPUS" "23"))  ;; set env variables
+     (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))  ;; set env variables
 
-  (add-to-list 'tramp-methods
-    '("qsub"
-      (tramp-login-program        "qsub")
-      (tramp-login-args           (("-I -l ncpus=23"))) ; other options here?
-      ;; Local $SHELL could be a nasty one, like zsh or fish.  Let's override it.
-      (tramp-login-env            (("SHELL") ("/bin/sh")))
-      (tramp-remote-shell         "/bin/sh")
-      (tramp-remote-shell-args    ("-c"))
-      (tramp-connection-timeout   10)))
+     (add-to-list 'tramp-methods
+        ;; this is an internal method for interactive scripting, change to what your server uses
+       '("qsub"   
+         (tramp-login-program        "qsub")
+         (tramp-login-args           (("-I -l ncpus=23"))) ; options here?
+         ;; the local $SHELL may contain conflicting configuration
+         ;; this should be good for most cases 
+         (tramp-login-env            (("SHELL") ("/bin/sh")))
+         (tramp-remote-shell         "/bin/sh")
+         (tramp-remote-shell-args    ("-c"))
+         (tramp-connection-timeout   10)))
+   )
+
+
 #+end_src
 
-* Developer ammenities
 
-#+begin_src emacs-lisp :tangle yes
+* Developer amenities
+
+#+begin_src emacs-lisp :tangle yes :results output none
   ;;; This will try to use tree-sitter modes for many languages. Please run
   ;;;
   ;;;   M-x treesit-install-language-grammar
@@ -588,14 +614,14 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     ;; Tell Emacs to prefer the treesitter mode
     ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
     (setq major-mode-remap-alist
-	  '((yaml-mode . yaml-ts-mode)
-	    (bash-mode . bash-ts-mode)
-	    (js2-mode . js-ts-mode)
-	    (ess-r-mode . r-ts-mode)
-	    (typescript-mode . typescript-ts-mode)
-	    (json-mode . json-ts-mode)
-	    (css-mode . css-ts-mode)
-	    (python-mode . python-ts-mode)))
+          '((yaml-mode . yaml-ts-mode)
+            (bash-mode . bash-ts-mode)
+            (js2-mode . js-ts-mode)
+            (ess-r-mode . r-ts-mode)
+            (typescript-mode . typescript-ts-mode)
+            (json-mode . json-ts-mode)
+            (css-mode . css-ts-mode)
+            (python-mode . python-ts-mode)))
     :hook
     ;; Auto parenthesis matching
     ((prog-mode . electric-pair-mode)))
@@ -642,10 +668,12 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
   (use-package eglot
     ;; no :ensure t here because it's built-in
-
+    :defer t
     ;; Configure hooks to automatically turn-on eglot for selected modes
     :hook
-    (((ess-r-mode) . eglot))
+    ((ess-r-mode . eglot)
+     (ess-mode . eglot)
+     (org-mode . eglot))
 
     :custom
     (eglot-send-changes-idle-time 0.1)
@@ -656,49 +684,86 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     ;; Sometimes you need to tell Eglot where to find the language server
     ; (add-to-list 'eglot-server-programs
     ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+  (setq eglot-stay-out-of '(company))
+  (add-to-list 'eglot-server-programs '((c-mode c++-mode) "clangd-10"))
+ 
+
+(defun company-R-objects--prefix ()
+  (unless (ess-inside-string-or-comment-p)
+    (let ((start (ess-symbol-start)))
+      (when start
+	(buffer-substring-no-properties start (point))))))
+
+(defun company-R-objects--candidates (arg)
+  (let ((proc (ess-get-next-available-process)))
+    (when proc
+      (with-current-buffer (process-buffer proc)
+	(all-completions arg (ess--get-cached-completions arg))))))
+
+(defun company-capf-with-R-objects--check-prefix (prefix)
+  (cl-search "$" prefix))
+
+(defun company-capf-with-R-objects (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+  (cl-case command
+    (interactive (company-begin-backend 'company-R-objects))
+    (prefix (company-R-objects--prefix))
+    (candidates (if (company-capf-with-R-objects--check-prefix arg)
+		    (company-R-objects--candidates arg)
+		  (company-capf command arg)))
+    (annotation (if (company-capf-with-R-objects--check-prefix arg)
+		    "R-object"
+		  (company-capf command arg)))
+    (kind (if (company-capf-with-R-objects--check-prefix arg)
+	      'field
+	    (company-capf command arg)))
+    (doc-buffer (company-capf command arg))))
     )
 
-  
+
 #+end_src
+
 
 * Citation management
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes :results output none
 
 
-(use-package citar
-  :ensure t
-  :bind (("C-c b" . citar-insert-citation)
-         :map minibuffer-local-map
-         ("M-b" . citar-insert-preset))
-  :custom
-  ;; Allows you to customize what citar-open does
-  (citar-file-open-functions '(("html" . citar-file-open-external)
-                               ;; ("pdf" . citar-file-open-external)
-                               (t . find-file))))
+  (use-package citar
+    :ensure t
+    :bind (("C-c b" . citar-insert-citation)
+           :map minibuffer-local-map
+           ("M-b" . citar-insert-preset))
+    :custom
+    ;; Allows you to customize what citar-open does
+    (citar-file-open-functions '(("html" . citar-file-open-external)
+                                 ;; ("pdf" . citar-file-open-external)
+                                 (t . find-file))))
 
-;; Optional: if you have the embark package installed, enable the ability to act
-;; on citations with Citar by invoking `embark-act'.
-(use-package citar-embark
-  :after citar embark
-  :diminish ""
-  :no-require
-  :config (citar-embark-mode))
+  ;; Optional: if you have the embark package installed, enable the ability to act
+  ;; on citations with Citar by invoking `embark-act'.
+  (use-package citar-embark
+    :ensure t
+    :after citar embark
+    :diminish ""
+    :no-require
+    :config (citar-embark-mode))
 
-(use-package citar-org-roam
-  :diminish ""
-  ;; To get this to work both Citar *and* Org-roam have to have been used
-  :after citar org-roam
-  :no-require
-  :config
-  (citar-org-roam-mode)
-  (setq citar-org-roam-note-title-template "${author} - ${title}\n#+filetags: ${tags}"))
+  (use-package citar-org-roam
+    :diminish ""
+    ;; To get this to work both Citar *and* Org-roam have to have been used
+    :after citar org-roam
+    :no-require
+    :config
+    (citar-org-roam-mode)
+    (setq citar-org-roam-note-title-template "${author} - ${title}\n#+filetags: ${tags}"))
 
 #+end_src
 
+
 * Vim mode
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :results output none :tangle no
 
 ;; Evil: vi emulation
 (use-package evil
@@ -722,496 +787,547 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 * Org mode
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :session test :results output none :tangle yes
 
-       ;(setq org-babel-R-command "R --slave --no-save")
+        (use-package org
+          :ensure t
+          :hook ((org-mode . visual-line-mode)  ; wrap lines at word breaks
+                 (org-mode . flyspell-mode)     ; spell checking!
+                 (org-mode . notebook-mode))    ; notebook mode
 
-       (require 'ess-site)
-       (org-babel-do-load-languages
-	'org-babel-load-languages
-	'((R . t)))
+          :bind (:map global-map
+                      ("C-c l s" . org-store-link)          ; Mnemonic: link → store
+                      ("C-c l i" . org-insert-link-global)) ; Mnemonic: link → insert
+          :init
+          (setq  org-startup-with-inline-images 'inlineimages)
+          (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+          (setq org-confirm-babel-evaluate nil)
 
-       (setq org-startup-with-inline-images 'inlineimages)
+          :custom
+          (org-display-remote-inline-images 'download)
 
-       (use-package org
-	 :custom
-	 (org-display-remote-inline-images 'download))
+          :config
+          (require 'oc-csl)                     ; citation support
+          (add-to-list 'org-export-backends 'md)
 
-       ;; Verbatim in slides
-       (require 'ox-latex)
-       (add-to-list 'org-latex-packages-alist '("" "minted"))
-       (setq org-latex-listings 'minted)
+          ;; Make org-open-at-point follow file links in the same window
+          (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
 
-       ;; (setq org-image-actual-width nil)
+          ;; Make exporting quotes better
+          (setq org-export-with-smart-quotes t)
+
+          ;; Verbatim in slides
+          (require 'ox-latex)
+          (add-to-list 'org-latex-packages-alist '("" "minted"))
+          (setq org-latex-listings 'minted)
+
+          ;; toggle blocks
+          (defvar org-blocks-hidden nil)
+
+          (defun org-toggle-blocks ()
+            (interactive)
+            (if org-blocks-hidden
+                (org-show-block-all)
+              (org-hide-block-all))
+            (setq-local org-blocks-hidden (not org-blocks-hidden)))
+
+          (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
+          ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
+
+          (add-hook 'org-mode-hook 'org-toggle-blocks)
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)
+       (R . t)
+       (java . t)
+       (C . t)
+       (lisp . t)))
+
+          ;; (org-babel-do-load-languages
+          ;;  'org-babel-load-languages
+          ;;  '((R . t)
+          ;;    (emacs-lisp . t)))
+
+          )
+
+        ;; (require 'ess-site)
+
+
+        (define-key org-mode-map (kbd "$")
+                    (lambda ()
+                      (interactive)
+                      (insert "$")
+                      (save-excursion
+                        (backward-char 1)
+                        (if (org-inside-LaTeX-fragment-p)
+                            (progn
+                              (forward-char 2)
+                              (org-preview-latex-fragment))))))
+
+
+
+        ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 3))
+
+        ;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+        (require 'org)
+        (require 'ox-html)
+        (require 'base64)
+
+        (defcustom org-html-image-base64-max-size #x40000
+          "Export embedded base64 encoded images up to this size."
+          :type 'number
+          :group 'org-export-html)
+
+        (defun file-to-base64-string (file &optional image prefix postfix)
+          "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
+                       Puts \"data:image/%s;base64,\" with %s replaced by the image type before the actual image data if IMAGE is non-nil."
+          (concat prefix
+                  (with-temp-buffer
+                    (set-buffer-multibyte nil)
+                    (insert-file-contents file nil nil nil t)
+                    (base64-encode-region (point-min) (point-max) 'no-line-break)
+                    (when image
+                      (goto-char (point-min))
+                      (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
+                    (buffer-string))
+                  postfix))
+
+      ;;   (defun orgTZA-html-base64-encode-p (file)
+      ;;     "Check whether FILE should be exported base64-encoded.
+      ;;                  The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
+      ;;     (when (and (stringp file)
+      ;;                (string-match "\\`file://" file))
+      ;;       (setq file (substring file (match-end 0))))
+      ;;     (and
+      ;;      (file-readable-p file)
+      ;;      (let ((size (nth 7 (file-attributes file))))
+      ;;        (<= size org-html-image-base64-max-size))
+      ;;      file))
+
+
+      (defun orgTZA-html-base64-encode-p (file)
+        "Check whether FILE should be exported base64-encoded.
+         The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
+        (when (and (stringp file)
+                   (string-match "\\`file://" file))
+          (if (string-match "\\`file:/qsub" file)
+              (setq file (replace-regexp-in-string "\\`file:/qsub" "ssh:" file))
+            (setq file (substring file (match-end 0)))))
+        (and
+         (file-readable-p file)
+         (let ((size (nth 7 (file-attributes file))))
+           (<= size org-html-image-base64-max-size))
+         file))
+
+
+        (defun orgTZA-html--format-image (source attributes info)
+          "Return \"img\" tag with given SOURCE and ATTRIBUTES.
+                       SOURCE is a string specifying the location of the image.
+                       ATTRIBUTES is a plist, as returned by
+                       `org-export-read-attribute'.  INFO is a plist used as
+                       a communication channel."
+          (if (string= "svg" (file-name-extension source))
+              (org-html--svg-image source attributes info)
+            (let* ((file (orgTZA-html-base64-encode-p source))
+                   (data (if file (file-to-base64-string file t)
+                           source)))
+              (org-html-close-tag
+               "img"
+               (org-html--make-attribute-string
+                (org-combine-plists
+                 (list :src data
+                       :alt (if (string-match-p "^ltxpng/" source)
+                                (org-html-encode-plain-text
+                                 (org-find-text-property-in-string 'org-latex-src source))
+                              (file-name-nondirectory source)))
+                 attributes))
+               info))))
+
+        (advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
+
+        ;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+#+end_src
+
+
+* Notebook mode
+
+This is set up last as I could not find a way to auto-install svg-tag-mode, if it is loaded last it is a lessen problem. In any case run =M-x install package= and then install =svg-tag-mode=.
+
+#+begin_src emacs-lisp :session test :tangle yes :results output none
+
+      (use-package svg-tag-mode
+      :ensure t
+  )
+
+
+     (require 'org)
+     (require 'svg-tag-mode)
+
+     (defgroup notebook nil
+       "Customization options for `notebook-mode'."
+       :group 'org)
+
+     (defcustom notebook-babel-python-command
+       "/opt/anaconda3/bin/python"
+       "Python interpreter's path."
+       :group 'notebook)
+
+     (defcustom notebook-cite-csl-styles-dir
+       "."
+       "CSL styles citations' directory."
+       :group 'notebook)
+
+     (defcustom notebook-tags
+       '(
+         ;; Inline code
+         ;; --------------------------------------------------------------------
+         ("^#\\+call:" .     ((lambda (tag) (svg-tag-make "CALL"
+                                                          :face 'org-meta-line))
+                              (lambda () (interactive) (notebook-call-at-point)) "Call function"))
+         ("call_" .         ((lambda (tag) (svg-tag-make "CALL"
+                                                         :face 'default
+                                                         :margin 1
+                                                         :alignment 0))
+                             (lambda () (interactive) (notebook-call-at-point)) "Call function"))
+         ("src_" .          ((lambda (tag) (svg-tag-make "CALL"
+                                                         :face 'default
+                                                         :margin 1
+                                                         :alignment 0))
+                             (lambda () (interactive) (notebook-call-at-point)) "Execute code"))
+
+         ;; Code blocks
+         ;; --------------------------------------------------------------------
+         ("^#\\+begin_src\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
+                                                   (svg-tag-make (upcase tag)
+                                                                 :face 'org-meta-line
+                                                                 :crop-left t))))
+         ("^#\\+begin_src" . ((lambda (tag) (svg-tag-make "RUN"
+                                                          :face 'org-meta-line
+                                                          :inverse t
+                                                          :crop-right t))
+                              (lambda () (interactive) (notebook-run-at-point)) "Run code block"))
+         ("^#\\+end_src" .    ((lambda (tag) (svg-tag-make "END"
+                                                           :face 'org-meta-line))))
+
+
+         ;; Export blocks
+         ;; --------------------------------------------------------------------
+         ("^#\\+begin_export" . ((lambda (tag) (svg-tag-make "EXPORT"
+                                                             :face 'org-meta-line
+                                                             :inverse t
+                                                             :alignment 0
+                                                             :crop-right t))))
+         ("^#\\+begin_export\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
+                                                      (svg-tag-make (upcase tag)
+                                                                    :face 'org-meta-line
+                                                                    :crop-left t))))
+         ("^#\\+end_export" . ((lambda (tag) (svg-tag-make "END"
+                                                           :face 'org-meta-line))))
+
+         ;; :noexport: tag
+         ;; --------------------------------------------------------------------
+         ("\\(:no\\)export:" .    ((lambda (tag) (svg-tag-make "NO"
+                                                               :face 'org-meta-line
+                                                               :inverse t
+                                                               :crop-right t))))
+         (":no\\(export:\\)" .    ((lambda (tag) (svg-tag-make "EXPORT"
+                                                               :face 'org-meta-line
+                                                               :crop-left t))))
+
+         ;; Miscellaneous keywords
+         ;; --------------------------------------------------------------------
+         ("|RUN|" .          ((lambda (tag) (svg-tag-make "RUN"
+                                                          :face 'org-meta-line
+                                                          :inverse t))))
+         ("|RUN ALL|" .       ((lambda (tag) (svg-tag-make "RUN ALL"
+                                                           :face 'org-meta-line))
+                               (lambda () (interactive) (notebook-run)) "Run all notebook code blocks"))
+         ("|SETUP|" .         ((lambda (tag) (svg-tag-make "SETUP"
+                                                           :face 'org-meta-line))
+                               (lambda () (interactive) (notebook-setup)) "Setup notebook environment"))
+         ("|EXPORT|" .        ((lambda (tag) (svg-tag-make "EXPORT"
+                                                           :face 'org-meta-line))
+                               (lambda () (interactive) (notebook-export-html)) "Export the notebook to HTML"))
+         ("|CALL|" .          ((lambda (tag) (svg-tag-make "CALL"
+                                                           :face 'org-meta-line))))
+
+
+         ;; References
+         ;; --------------------------------------------------------------------
+         ("\\(\\[cite:@[A-Za-z]+:\\)" .
+          ((lambda (tag) (svg-tag-make (upcase tag)
+                           ;            :face 'nano-default
+                                       :inverse t
+                                       :beg 7 :end -1
+                                       :crop-right t))))
+         ("\\[cite:@[A-Za-z]+:\\([0-9a-z]+\\]\\)" .
+          ((lambda (tag) (svg-tag-make (upcase tag)
+                           ;            :face 'nano-default
+                                       :end -1
+                                       :crop-left t))))
+
+         ;; Miscellaneous properties
+         ;; --------------------------------------------------------------------
+         ("^#\\+caption:" .   ((lambda (tag) (svg-tag-make "CAPTION"
+                                                           :face 'org-meta-line))))
+         ("^#\\+latex:" .     ((lambda (tag) (svg-tag-make "LATEX"
+                                                           :face 'org-meta-line))))
+         ("^#\\+html:" .      ((lambda (tag) (svg-tag-make "HTML"
+                                                           :face 'org-meta-line))))
+         ("^#\\+name:" .      ((lambda (tag) (svg-tag-make "NAME"
+                                                           :face 'org-meta-line))))
+         ("^#\\+header:" .    ((lambda (tag) (svg-tag-make "HEADER"
+                                                           :face 'org-meta-line))))
+         ("^#\\+label:" .     ((lambda (tag) (svg-tag-make "LABEL"
+                                                           :face 'org-meta-line))))
+         ("^#\\+results:"  .  ((lambda (tag) (svg-tag-make "RESULTS"
+                                                           :face 'org-meta-line)))))
+       "The `notebook-mode' tags alist.
+         This alist is the `notebook-mode' specific tags list.  It follows the
+         same definition pattern as the `svg-tag-tags' alist (to which
+         `notebook-tags' is added)."
+       :group 'notebook)
+
+     (defcustom notebook-font-lock-case-insensitive t
+       "Make the keywords fontification case insensitive if non-nil."
+       :group 'notebook)
+
+     (defcustom notebook-indent t
+       "Default document indentation.
+         If non-nil, `org-indent' is called when the mode is turned on."
+       :group 'notebook)
+
+     (defcustom notebook-hide-blocks t
+       "Default visibility of org blocks in `notebook-mode'.
+         If non-nil, the org blocks are hidden when the mode is turned on."
+       :group 'notebook)
+
+     (defun notebook-run-at-point ()
+       "Update notebook rendering at point."
+       (interactive)
+       (org-ctrl-c-ctrl-c)
+       (org-redisplay-inline-images))
+
+     (defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
+
+     (defun notebook-setup ()
+       "Notebook mode setup function."
+       (interactive)
+       (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
+       (setq org-babel-python-command notebook-babel-python-command)
+       (require 'ob-python)
+       (require 'oc-csl))
+
+     (defalias 'notebook-run 'org-babel-execute-buffer)
+
+     (defalias 'notebook-export-html 'org-html-export-to-html)
+
+     (defun notebook-mode-on ()
+       "Activate notebook mode."
+
+       (add-to-list 'font-lock-extra-managed-props 'display)
+       (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
        (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+       (setq org-startup-with-inline-images t)
+       (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
+       (org-redisplay-inline-images)
+       (if notebook-indent (org-indent-mode))
+       (if notebook-hide-blocks (org-hide-block-all))
+       (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+       (svg-tag-mode 1)
+       (message "notebook mode on"))
 
-       (defvar org-blocks-hidden nil)
+     (defun notebook-mode-off ()
+       "Deactivate notebook mode."
 
-       (defun org-toggle-blocks ()
-	 (interactive)
-	 (if org-blocks-hidden
-	     (org-show-block-all)
-	   (org-hide-block-all))
-	 (setq-local org-blocks-hidden (not org-blocks-hidden)))
+       (svg-tag-mode -1)
+       (if notebook-indent (org-indent-mode -1))
+       (if notebook-hide-blocks (org-hide-block-all))
+       (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 
-       (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
-       ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
+         ;;;###autoload
+     (define-minor-mode notebook-mode
+       "Minor mode for graphical tag as rounded box."
+       :group 'notebook
+       (if notebook-mode
+           (notebook-mode-on)
+         (notebook-mode-off)))
 
-       (add-hook 'org-mode-hook 'org-toggle-blocks)
+     (define-globalized-minor-mode
+       global-notebook-mode notebook-mode notebook-mode-on)
 
-
-       ;; ESS
-       ;; Font lock keywords for syntactic highlighting:
-       (setq ess-R-font-lock-keywords
-	     '((ess-R-fl-keyword:keywords . t)
-	       (ess-R-fl-keyword:constants . t)
-	       (ess-R-fl-keyword:modifiers . t)
-	       (ess-R-fl-keyword:fun-defs . t)
-	       (ess-R-fl-keyword:assign-ops . t)
-	       (ess-R-fl-keyword:%op% . t)
-	       (ess-fl-keyword:fun-calls . t)
-	       (ess-fl-keyword:numbers . t)
-	       (ess-fl-keyword:operators)
-	       (ess-fl-keyword:delimiters)
-	       (ess-fl-keyword:=)
-	       (ess-R-fl-keyword:F&T . t)))
-
-       (add-hook 'ess-r-mode-hook 'eglot-ensure)
-       ;; Open Rdired buffer with F9:
-       (add-hook 'ess-r-mode-hook
-		 #'(lambda ()
-		    (local-set-key (kbd "<f9>") #'ess-rdired)))
-
-
-       ;; Close Rdired buffer with F9 as well:
-       (add-hook 'ess-rdired-mode-hook
-		 #'(lambda ()
-		    (local-set-key (kbd "<f9>") #'kill-buffer-and-window)))
-
-    (global-set-key (kbd "C-f") 'isearch-forward)
-    (global-set-key (kbd "C-S-f") 'isearch-backward)
-    (global-set-key (kbd "C-s") 'save-buffer)
-    (global-set-key (kbd "C-s") 'save-buffer)
-
-
-       ;(map! :after ess-help
-       ;      :map ess-help-mode-map
-       ;      :n "q" nil
-       ;      :n "esc" nil)
-       ;
-       ;(map! :after ess-rdired
-       ;      :map ess-rdired-mode-map
-       ;      :n "q" nil
-       ;      :n "ESC" nil)
-
-
-       ;(set-popup-rule! "^\\*R[:\\*]"  :side 'bottom :width 0.5 :quit nil :ttl nil)
-       ;(set-popup-rule! "^\\*R dired\\*"     :side 'right :slot -1 :width 0.33 :quit nil :ttl 0)
-       ;(set-popup-rule! "^\\*help\\[R\\]"  :side 'right :slot 1 :width 0.33 :quit nil :ttl 0)
-
-
-       (setq flycheck-checker-error-threshold 5000)
-
-
-       (setq display-buffer-alist
-	     '(("^\\*R"
-		nil
-		(dedicated . t))))
-
-
-       (setq display-buffer-alist
-	     '(("ESS[R]"
-		nil
-		(dedicated . t))))
-
-       ;; Use C-x C-o to trigger manually completion on R function args:
-       (add-hook 'ess-r-mode-hook
-		 #'(lambda ()
-		    (local-set-key (kbd "C-x C-o") #'company-R-args)))
-
-  (use-package company
-     :ensure t
+    (use-package notebook
+     :after org-mode
      :config
-     ;;Turn on company-mode globally:
-     (add-hook 'ess-r-mode-hook 'global-company-mode)
-     ;;Only activate company in R scripts, not in R console:
-     (setq ess-use-company 'script-only))
+     (svg-tag-mode 1)
+    )
 
 
+    ;;(provide 'notebook)
+    ;;(add-hook 'notebook-mode 'svg-tag-mode)
+    ;;(add-hook 'org-mode 'notebook-mode)
 
-       (setq comint-scroll-to-bottom-on-input t)
-       (setq comint-scroll-to-bottom-on-output t)
-       (setq comint-move-point-for-output t)
-       (setq comint-scroll-show-maximum-output t)
-
-
-       ;;(map! :after org
-       ;;      :map org-mode-map
-       ;;      :i "$" (lambda ()
-       ;;               (interactive)
-       ;;               (insert "$")
-       ;;               (save-excursion
-       ;;                 (backward-char 1)
-       ;;                 (if (org-inside-LaTeX-fragment-p)
-       ;;                     (progn
-       ;;                       (forward-char 2)
-       ;;                       (org-preview-latex-fragment))))))
-
-       ;; Enters interactive mode in the server
-       (require 'tramp)
-       (eval-after-load 'tramp '(setenv "NCPUS" "23"))
-       (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))
-
-       (add-to-list 'tramp-methods
-	 '("qsub"
-	   (tramp-login-program        "qsub")
-	   (tramp-login-args           (("-I -l ncpus=23"))) ; other options here?
-	   ;; Local $SHELL could be a nasty one, like zsh or fish.  Let's override it.
-	   (tramp-login-env            (("SHELL") ("/bin/sh")))
-	   (tramp-remote-shell         "/bin/sh")
-	   (tramp-remote-shell-args    ("-c"))
-	   (tramp-connection-timeout   10)))
-
-
-
-       ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 3))
-
-       ;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
-       (require 'org)
-       (require 'ox-html)
-       (require 'base64)
-
-       (defcustom org-html-image-base64-max-size #x40000
-	 "Export embedded base64 encoded images up to this size."
-	 :type 'number
-	 :group 'org-export-html)
-
-       (defun file-to-base64-string (file &optional image prefix postfix)
-	 "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
-       Puts \"data:image/%s;base64,\" with %s replaced by the image type before the actual image data if IMAGE is non-nil."
-	 (concat prefix
-	     (with-temp-buffer
-	       (set-buffer-multibyte nil)
-	       (insert-file-contents file nil nil nil t)
-	       (base64-encode-region (point-min) (point-max) 'no-line-break)
-	       (when image
-		 (goto-char (point-min))
-		 (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
-	       (buffer-string))
-	     postfix))
-
-       (defun orgTZA-html-base64-encode-p (file)
-	 "Check whether FILE should be exported base64-encoded.
-       The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
-	 (when (and (stringp file)
-		    (string-match "\\`file://" file))
-	   (setq file (substring file (match-end 0))))
-	 (and
-	  (file-readable-p file)
-	  (let ((size (nth 7 (file-attributes file))))
-	    (<= size org-html-image-base64-max-size))
-	  file))
-
-       (defun orgTZA-html--format-image (source attributes info)
-	 "Return \"img\" tag with given SOURCE and ATTRIBUTES.
-       SOURCE is a string specifying the location of the image.
-       ATTRIBUTES is a plist, as returned by
-       `org-export-read-attribute'.  INFO is a plist used as
-       a communication channel."
-	 (if (string= "svg" (file-name-extension source))
-	     (org-html--svg-image source attributes info)
-	   (let* ((file (orgTZA-html-base64-encode-p source))
-		  (data (if file (file-to-base64-string file t)
-			  source)))
-	     (org-html-close-tag
-	      "img"
-	      (org-html--make-attribute-string
-	       (org-combine-plists
-		(list :src data
-		      :alt (if (string-match-p "^ltxpng/" source)
-			       (org-html-encode-plain-text
-				(org-find-text-property-in-string 'org-latex-src source))
-			     (file-name-nondirectory source)))
-		attributes))
-	      info))))
-
-       (advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
-       ;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
-
-       (require 'org)
-       (require 'svg-tag-mode)
-
-       (defgroup notebook nil
-	 "Customization options for `notebook-mode'."
-	 :group 'org)
-
-       (defcustom notebook-babel-python-command
-	 "/opt/anaconda3/bin/python"
-	 "Python interpreter's path."
-	 :group 'notebook)
-
-       (defcustom notebook-cite-csl-styles-dir
-	 "."
-	 "CSL styles citations' directory."
-	 :group 'notebook)
-
-       (defcustom notebook-tags
-	     '(
-	       ;; Inline code
-	       ;; --------------------------------------------------------------------
-	       ("^#\\+call:" .     ((lambda (tag) (svg-tag-make "CALL"
-						  :face 'org-meta-line))
-				    (lambda () (interactive) (notebook-call-at-point)) "Call function"))
-	       ("call_" .         ((lambda (tag) (svg-tag-make "CALL"
-						 :face 'default
-						 :margin 1
-						 :alignment 0))
-				   (lambda () (interactive) (notebook-call-at-point)) "Call function"))
-	       ("src_" .          ((lambda (tag) (svg-tag-make "CALL"
-						 :face 'default
-						 :margin 1
-						 :alignment 0))
-				    (lambda () (interactive) (notebook-call-at-point)) "Execute code"))
-
-	       ;; Code blocks
-	       ;; --------------------------------------------------------------------
-	       ("^#\\+begin_src\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
-							 (svg-tag-make (upcase tag)
-								       :face 'org-meta-line
-								       :crop-left t))))
-	       ("^#\\+begin_src" . ((lambda (tag) (svg-tag-make "RUN"
-						  :face 'org-meta-line
-						  :inverse t
-						  :crop-right t))
-				    (lambda () (interactive) (notebook-run-at-point)) "Run code block"))
-	       ("^#\\+end_src" .    ((lambda (tag) (svg-tag-make "END"
-						   :face 'org-meta-line))))
-
-
-	       ;; Export blocks
-	       ;; --------------------------------------------------------------------
-	       ("^#\\+begin_export" . ((lambda (tag) (svg-tag-make "EXPORT"
-						     :face 'org-meta-line
-						     :inverse t
-						     :alignment 0
-						     :crop-right t))))
-	       ("^#\\+begin_export\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
-							    (svg-tag-make (upcase tag)
-									  :face 'org-meta-line
-									  :crop-left t))))
-	       ("^#\\+end_export" . ((lambda (tag) (svg-tag-make "END"
-						   :face 'org-meta-line))))
-
-	       ;; :noexport: tag
-	       ;; --------------------------------------------------------------------
-	       ("\\(:no\\)export:" .    ((lambda (tag) (svg-tag-make "NO"
-						       :face 'org-meta-line
-						       :inverse t
-						       :crop-right t))))
-	       (":no\\(export:\\)" .    ((lambda (tag) (svg-tag-make "EXPORT"
-						       :face 'org-meta-line
-						       :crop-left t))))
-
-	       ;; Miscellaneous keywords
-	       ;; --------------------------------------------------------------------
-	       ("|RUN|" .          ((lambda (tag) (svg-tag-make "RUN"
-						  :face 'org-meta-line
-						  :inverse t))))
-	       ("|RUN ALL|" .       ((lambda (tag) (svg-tag-make "RUN ALL"
-						   :face 'org-meta-line))
-				    (lambda () (interactive) (notebook-run)) "Run all notebook code blocks"))
-	       ("|SETUP|" .         ((lambda (tag) (svg-tag-make "SETUP"
-						   :face 'org-meta-line))
-				    (lambda () (interactive) (notebook-setup)) "Setup notebook environment"))
-	       ("|EXPORT|" .        ((lambda (tag) (svg-tag-make "EXPORT"
-						   :face 'org-meta-line))
-				    (lambda () (interactive) (notebook-export-html)) "Export the notebook to HTML"))
-	       ("|CALL|" .          ((lambda (tag) (svg-tag-make "CALL"
-						   :face 'org-meta-line))))
-
-
-	       ;; References
-	       ;; --------------------------------------------------------------------
-	       ("\\(\\[cite:@[A-Za-z]+:\\)" .
-		((lambda (tag) (svg-tag-make (upcase tag)
-					     :face 'nano-default
-					     :inverse t
-					     :beg 7 :end -1
-					     :crop-right t))))
-	       ("\\[cite:@[A-Za-z]+:\\([0-9a-z]+\\]\\)" .
-		((lambda (tag) (svg-tag-make (upcase tag)
-					     :face 'nano-default
-					     :end -1
-					     :crop-left t))))
-
-	       ;; Miscellaneous properties
-	       ;; --------------------------------------------------------------------
-	       ("^#\\+caption:" .   ((lambda (tag) (svg-tag-make "CAPTION"
-						   :face 'org-meta-line))))
-	       ("^#\\+latex:" .     ((lambda (tag) (svg-tag-make "LATEX"
-						   :face 'org-meta-line))))
-	       ("^#\\+html:" .      ((lambda (tag) (svg-tag-make "HTML"
-						   :face 'org-meta-line))))
-	       ("^#\\+name:" .      ((lambda (tag) (svg-tag-make "NAME"
-						   :face 'org-meta-line))))
-	       ("^#\\+header:" .    ((lambda (tag) (svg-tag-make "HEADER"
-						   :face 'org-meta-line))))
-	       ("^#\\+label:" .     ((lambda (tag) (svg-tag-make "LABEL"
-						   :face 'org-meta-line))))
-	       ("^#\\+results:"  .  ((lambda (tag) (svg-tag-make "RESULTS"
-						   :face 'org-meta-line)))))
-	 "The `notebook-mode' tags alist.
-       This alist is the `notebook-mode' specific tags list.  It follows the
-       same definition pattern as the `svg-tag-tags' alist (to which
-       `notebook-tags' is added)."
-	 :group 'notebook)
-
-       (defcustom notebook-font-lock-case-insensitive t
-	 "Make the keywords fontification case insensitive if non-nil."
-	 :group 'notebook)
-
-       (defcustom notebook-indent t
-	 "Default document indentation.
-       If non-nil, `org-indent' is called when the mode is turned on."
-	 :group 'notebook)
-
-       (defcustom notebook-hide-blocks t
-	 "Default visibility of org blocks in `notebook-mode'.
-       If non-nil, the org blocks are hidden when the mode is turned on."
-	 :group 'notebook)
-
-       (defun notebook-run-at-point ()
-	 "Update notebook rendering at point."
-	 (interactive)
-	 (org-ctrl-c-ctrl-c)
-	 (org-redisplay-inline-images))
-
-       (defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
-
-       (defun notebook-setup ()
-	 "Notebook mode setup function."
-	 (interactive)
-	 (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
-	 (setq org-babel-python-command notebook-babel-python-command)
-	 (require 'ob-python)
-	 (require 'oc-csl))
-
-       (defalias 'notebook-run 'org-babel-execute-buffer)
-
-       (defalias 'notebook-export-html 'org-html-export-to-html)
-
-       (defun notebook-mode-on ()
-	 "Activate notebook mode."
-
-	 (add-to-list 'font-lock-extra-managed-props 'display)
-	 (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
-	 (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
-	 (setq org-startup-with-inline-images t)
-	 (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
-	 (org-redisplay-inline-images)
-	 (if notebook-indent (org-indent-mode))
-	 (if notebook-hide-blocks (org-hide-block-all))
-	 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
-	 (svg-tag-mode 1)
-	 (message "notebook mode on"))
-
-       (defun notebook-mode-off ()
-	 "Deactivate notebook mode."
-
-	 (svg-tag-mode -1)
-	 (if notebook-indent (org-indent-mode -1))
-	 (if notebook-hide-blocks (org-hide-block-all))
-	 (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
-
-       ;;;###autoload
-       (define-minor-mode notebook-mode
-	 "Minor mode for graphical tag as rounded box."
-	 :group 'notebook
-	 (if notebook-mode
-	     (notebook-mode-on)
-	   (notebook-mode-off)))
-
-       (define-globalized-minor-mode
-	  global-notebook-mode notebook-mode notebook-mode-on)
-
-       (provide 'notebook)
-
-
-       (add-hook 'org-mode-hook 'notebook-mode)
 #+end_src
 
 
 * Copilot
 
 #+begin_src emacs-lisp :eval no :tangle no
-;; accept completion from copilot and fallback to company
-(use-package copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+  ;; accept completion from copilot and fallback to company
+  (use-package copilot
+    :ensure t
+    :hook (prog-mode . copilot-mode)
+    :bind (:map copilot-completion-map
+		("<tab>" . 'copilot-accept-completion)
+		("TAB" . 'copilot-accept-completion)
+		("C-TAB" . 'copilot-accept-completion-by-word)
+		("C-<tab>" . 'copilot-accept-completion-by-word)))
 
 
 
-(setq undo-outer-limit 72000000)
+  (setq undo-outer-limit 72000000)
 #+end_src
 
 
 * ESS
 
-#+begin_src emacs-lisp :tanble yes
-  (setq display-buffer-alist
-	'(("^\\*R[:\\*]" . (display-buffer-in-side-window))
-	  ("^\\*R dired\\*" . (display-buffer-in-side-window
-			       (side . right)
-			       (slot . -1)
-			       (window-width . 0.33)))
-	  ("^\\*help\\[R\\]" . (display-buffer-in-side-window
-			       (side . right)
-			       (slot . 1)
-			       (window-width . 0.33)))))
+#+begin_src emacs-lisp :results output none :tangle yes
 
-  (add-hook 'emacs-startup-hook
-          (lambda ()
-            (let ((r-buffer (get-buffer "*R[:*]"))
-                  (r-dired-buffer (get-buffer "*R dired*"))
-                  (help-r-buffer (get-buffer "*help[R]*")))
-              (when r-buffer
-                (with-selected-window (get-buffer-window r-buffer)
-                  (display-buffer-at-bottom)
-                  ))
-              (when r-dired-buffer
-                (with-selected-window (get-buffer-window r-dired-buffer)
-                  (set-window-parameter nil 'window-side 'right)
-                  (set-window-parameter nil 'window-slot -1)
-                  (set-window-parameter nil 'window-width 0.33)))
-              (when help-r-buffer
-                (with-selected-window (get-buffer-window help-r-buffer)
-                  (set-window-parameter nil 'window-side 'right)
-                  (set-window-parameter nil 'window-slot 1)
-                  (set-window-parameter nil 'window-width 0.33))))))
+  (use-package ess
+    :ensure t
+    :hook
+    (ess-r-mode-hook . eglot-ensure) 
+    :config
+    (setq ess-R-font-lock-keywords
+          '((ess-R-fl-keyword:keywords . t)
+            (ess-R-fl-keyword:constants . t)
+            (ess-R-fl-keyword:modifiers . t)
+            (ess-R-fl-keyword:fun-defs . t)
+            (ess-R-fl-keyword:assign-ops . t)
+            (ess-R-fl-keyword:%op% . t)
+            (ess-fl-keyword:fun-calls . t)
+            (ess-fl-keyword:numbers . t)
+            (ess-fl-keyword:operators)
+            (ess-fl-keyword:delimiters)
+            (ess-fl-keyword:=)
+            (ess-R-fl-keyword:F&T . t)))
+    (setq ess-help-own-frame 'one)  ; avoid destroying existing frame
+    (setq ess-help-reuse-window t)  ; same above
+    (setq comint-scroll-to-bottom-on-input t)
+    (setq comint-scroll-to-bottom-on-output t)
+    (setq comint-move-point-for-output t)
+    (setq comint-scroll-show-maximum-output t)
+
+    ;; Trying to speed up ess on orgmode
+    (setq ess-use-flymake nil)
+    ;;(setq ess-eval-visibly-p nil)
+    ;;(setq ess-use-auto-complete 'script-only)
+
+    (setq display-buffer-alist
+          '(("^\\*R[:\\*]" . (display-buffer-in-side-window
+                              (side . bottom)
+                              (slot . -1)
+                              ))
+            ("^\\*R dired\\*" . (display-buffer-in-side-window
+                                 (side . right)
+                                 (slot . -1)
+                                 (window-width . 0.33)))
+            ("^\\*help\\[R\\]" . (display-buffer-in-side-window
+                                  (side . right)
+                                  (slot . 1)
+                                  (window-width . 0.33)))))
+    :custom
+
+    (savehist-mode 1)
+
+    (add-hook 'ess-r-mode-hook
+              (lambda ()
+                (let ((r-buffer (get-buffer "*R[:*]"))
+                      (r-dired-buffer (get-buffer "*R dired*"))
+                      (help-r-buffer (get-buffer "*help[R]*")))
+                  (when r-buffer
+                    (with-selected-window (get-buffer-window r-buffer)
+                      (display-buffer-at-bottom)
+                      ))
+                  (when r-dired-buffer
+                    (with-selected-window (get-buffer-window r-dired-buffer)
+                      (set-window-parameter nil 'window-side 'right)
+                      (set-window-parameter nil 'window-slot -1)
+                      (set-window-parameter nil 'window-width 0.33)))
+                  (when help-r-buffer
+                    (with-selected-window (get-buffer-window help-r-buffer)
+                      (set-window-parameter nil 'window-side 'right)
+                      (set-window-parameter nil 'window-slot 1)
+                      (set-window-parameter nil 'window-width 0.33))))))
+    )
+
+  ;;(add-hook 'ess-r-mode-hook 'eglot-ensure)
+  ;; Open Rdired buffer with F9:
+  (add-hook 'ess-r-mode-hook
+            #'(lambda ()
+                (local-set-key (kbd "<f9>") #'ess-rdired)))
+
+  ;; Close 
+  ;;Rdired buffer with F9 as well:
+  (add-hook 'ess-rdired-mode-hook
+            #'(lambda ()
+                (local-set-key (kbd "<f9>") #'kill-buffer-and-window)))
+
+  ;; ;; (use-package company
+  ;;   :ensure t
+  ;;    :after lsp-mode
+  ;;    :hook (lsp-mode . company-mode)
+  ;;    :bind
+  ;;    (:map company-active-map
+  ;;          ("<tab>" . company-complete-selection))
+  ;;    (:map lsp-mode-map
+  ;;          ("<tab>" . company-indent-or-complete-common))
+  ;;    :custom
+  ;;    (company-minimum-prefix-length 1)
+  ;;    (company-idle-delay 0.0)
+  ;;    :config
+  ;;    ;;Turn on company-mode globally:
+  ;;    (add-hook 'ess-r-mode-hook 'global-company-mode)
+  ;;    ;;Only activate company in R scripts, not in R console:
+  ;;    (setq ess-use-company 'script-only)
+  ;;    ;; Use C-x C-o to trigger manually completion on R function args:
+  ;;    (add-hook 'ess-r-mode-hook
+  ;;              #'(lambda ()
+  ;;                  (local-set-key (kbd "C-x C-o") #'company-R-args)))
+
+  ;;    (define-key company-active-map [return] nil)
+  ;;    (define-key company-active-map [tab] 'company-complete-common)
+  ;;    (define-key company-active-map (kbd "TAB") 'company-complete-common)
+  ;;    (define-key company-active-map (kbd "M-TAB") 'company-complete-selection)
+
+  ;;    (setq company-selection-wrap-around t
+  ;;          company-tooltip-align-annotations t
+  ;;          company-idle-delay 0.36
+  ;;          company-minimum-prefix-length 2
+  ;;          company-tooltip-limit 10)
+  ;;    )
+
+  ;;   (use-package lsp-ui
+  ;;     :ensure t
+  ;;     :after lsp-mode
+  ;;     :hook (lsp-mode . lsp-ui-mode)
+  ;;    :custom
+  ;;    (lsp-ui-doc-position 'bottom)
+  ;;    ;; remap "M-." and "M-?" to point to the nice looking lsp-ui
+  ;;    ;; replacements
+  ;;    :config
+  ;;    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  ;;    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
 
 
-	(setq comint-scroll-to-bottom-on-input t)
-	(setq comint-scroll-to-bottom-on-output t)
-	(setq comint-move-point-for-output t)
-	(setq comint-scroll-show-maximum-output t)
-
-      (define-key company-active-map [return] nil)
-      (define-key company-active-map [tab] 'company-complete-common)
-      (define-key company-active-map (kbd "TAB") 'company-complete-common)
-      (define-key company-active-map (kbd "M-TAB") 'company-complete-selection)
-
-    (setq company-selection-wrap-around t
-	  company-tooltip-align-annotations t
-	  company-idle-delay 0.36
-	  company-minimum-prefix-length 2
-	  company-tooltip-limit 10)
-
-       ;; Trying to speed up ess on orgmode
-       (setq ess-use-flymake nil)
-       (setq ess-eval-visibly-p nil)
-       ;;(setq ess-use-auto-complete 'script-only)
 #+end_src
+
+
+* FORMULAS!
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+#+END_SRC
+
+$$ a=+\sqrt{2} $$
