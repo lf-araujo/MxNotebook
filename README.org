@@ -2,6 +2,7 @@
 #+TITLE: Notebook system for the Mx team
 #+OPTIONS: toc:2
 #+PROPERTY: header-args :tangle init.el
+#+SETUPFILE: "./style.theme"
 #+STARTUP: latexpreview
 
 *Abstract |* A Notebook system based on Emacs borrowing from existing config files. This system  works from a single org file as an attempt to be as easy as possible for non-emacs users. It handles analyses in any language supported by org and through any server with a ssh interface. Since, its contents (an org file) are automatically rendered in Github or similar, it is trivial to share analyses results with reviewers and auditors, thus providing a way for transparent review/auditing of statistical analyses. This configuration provides a more complete set of functionality than jupyter, with less hassle.
@@ -35,7 +36,7 @@ It was created in order to simplify Emacs use as a server-ready Notebook.
 *** You can have your plots displayed 
 
 #+header: :width 1500 :height 600 :res 110
-#+BEGIN_SRC R :session test :results output graphics file :file graphs/scatter.png
+#+BEGIN_SRC R :session test :exports both :results output graphics file :file graphs/scatter.png
   # load package and data
   options(scipen=999)  # turn-off scientific notation like 1e+48
   library(ggplot2)
@@ -62,7 +63,7 @@ It was created in order to simplify Emacs use as a server-ready Notebook.
 
 *** Or your tables
 
-#+BEGIN_SRC R :exports both
+#+BEGIN_SRC R :session test :exports both :results output
 library(tableone)
 
 ## Load Mayo Clinic Primary Biliary Cirrhosis Data
@@ -273,7 +274,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   (setopt completions-format 'one-column)
   (setopt completions-group t)
   (setopt completion-auto-select 'second-tab)            ; Much more eager
-                                          ;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
+  ;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
 
   (keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
 
@@ -763,7 +764,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 * Vim mode
 
-#+begin_src emacs-lisp :results output none :tangle no
+#+begin_src emacs-lisp :results output none :tangle yes
 
 ;; Evil: vi emulation
 (use-package evil
@@ -789,164 +790,161 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 #+begin_src emacs-lisp :session test :results output none :tangle yes
 
-        (use-package org
-          :ensure t
-          :hook ((org-mode . visual-line-mode)  ; wrap lines at word breaks
-                 (org-mode . flyspell-mode)     ; spell checking!
-                 (org-mode . notebook-mode))    ; notebook mode
+      (use-package org
+        :ensure t
+        :hook ((org-mode . visual-line-mode)  ; wrap lines at word breaks
+               (org-mode . flyspell-mode)     ; spell checking!
+               (org-mode . notebook-mode))    ; notebook mode
 
-          :bind (:map global-map
-                      ("C-c l s" . org-store-link)          ; Mnemonic: link → store
-                      ("C-c l i" . org-insert-link-global)) ; Mnemonic: link → insert
-          :init
-          (setq  org-startup-with-inline-images 'inlineimages)
-          (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
-          (setq org-confirm-babel-evaluate nil)
+        :bind (:map global-map
+                    ("C-c l s" . org-store-link)          ; Mnemonic: link → store
+                    ("C-c l i" . org-insert-link-global)) ; Mnemonic: link → insert
+        :init
+        (setq  org-startup-with-inline-images 'inlineimages)
+        (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+        (setq org-confirm-babel-evaluate nil)
 
-          :custom
-          (org-display-remote-inline-images 'download)
+        :custom
+        (org-display-remote-inline-images 'download)
 
-          :config
-          (require 'oc-csl)                     ; citation support
-          (add-to-list 'org-export-backends 'md)
+        :config
+        (require 'oc-csl)                     ; citation support
+        (add-to-list 'org-export-backends 'md)
 
-          ;; Make org-open-at-point follow file links in the same window
-          (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
+        ;; Make org-open-at-point follow file links in the same window
+        (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
 
-          ;; Make exporting quotes better
-          (setq org-export-with-smart-quotes t)
+        ;; Make exporting quotes better
+        (setq org-export-with-smart-quotes t)
 
-          ;; Verbatim in slides
-          (require 'ox-latex)
-          (add-to-list 'org-latex-packages-alist '("" "minted"))
-          (setq org-latex-listings 'minted)
+        ;; Verbatim in slides
+        (require 'ox-latex)
+        (add-to-list 'org-latex-packages-alist '("" "minted"))
+        (setq org-latex-listings 'minted)
 
-          ;; toggle blocks
-          (defvar org-blocks-hidden nil)
+        ;; toggle blocks
+        (defvar org-blocks-hidden nil)
 
-          (defun org-toggle-blocks ()
-            (interactive)
-            (if org-blocks-hidden
-                (org-show-block-all)
-              (org-hide-block-all))
-            (setq-local org-blocks-hidden (not org-blocks-hidden)))
+        (defun org-toggle-blocks ()
+          (interactive)
+          (if org-blocks-hidden
+              (org-show-block-all)
+            (org-hide-block-all))
+          (setq-local org-blocks-hidden (not org-blocks-hidden)))
 
-          (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
-          ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
+        (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
+        ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
 
-          (add-hook 'org-mode-hook 'org-toggle-blocks)
+        (add-hook 'org-mode-hook 'org-toggle-blocks)
 
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((python . t)
-       (R . t)
-       (java . t)
-       (C . t)
-       (lisp . t)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (R . t)
+     (java . t)
+     (C . t)
+     (lisp . t)))
 
-          ;; (org-babel-do-load-languages
-          ;;  'org-babel-load-languages
-          ;;  '((R . t)
-          ;;    (emacs-lisp . t)))
+      (define-key org-mode-map (kbd "$")
+                  (lambda ()
+                    (interactive)
+                    (insert "$")
+                    (save-excursion
+                      (backward-char 1)
+                      (if (org-inside-LaTeX-fragment-p)
+                          (progn
+                            (forward-char 2)
+                            (org-preview-latex-fragment))))))
 
-          )
+        ;; (org-babel-do-load-languages
+        ;;  'org-babel-load-languages
+        ;;  '((R . t)
+        ;;    (emacs-lisp . t)))
 
-        ;; (require 'ess-site)
+        )
 
+      ;; (require 'ess-site)
 
-        (define-key org-mode-map (kbd "$")
-                    (lambda ()
-                      (interactive)
-                      (insert "$")
-                      (save-excursion
-                        (backward-char 1)
-                        (if (org-inside-LaTeX-fragment-p)
-                            (progn
-                              (forward-char 2)
-                              (org-preview-latex-fragment))))))
+      (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
 
+      ;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+      (require 'org)
+      (require 'ox-html)
+      (require 'base64)
 
+      (defcustom org-html-image-base64-max-size #x40000
+        "Export embedded base64 encoded images up to this size."
+        :type 'number
+        :group 'org-export-html)
 
-        ;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 3))
+      (defun file-to-base64-string (file &optional image prefix postfix)
+        "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
+                     Puts \"data:image/%s;base64,\" with %s replaced by the image type before the actual image data if IMAGE is non-nil."
+        (concat prefix
+                (with-temp-buffer
+                  (set-buffer-multibyte nil)
+                  (insert-file-contents file nil nil nil t)
+                  (base64-encode-region (point-min) (point-max) 'no-line-break)
+                  (when image
+                    (goto-char (point-min))
+                    (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
+                  (buffer-string))
+                postfix))
 
-        ;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
-        (require 'org)
-        (require 'ox-html)
-        (require 'base64)
-
-        (defcustom org-html-image-base64-max-size #x40000
-          "Export embedded base64 encoded images up to this size."
-          :type 'number
-          :group 'org-export-html)
-
-        (defun file-to-base64-string (file &optional image prefix postfix)
-          "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
-                       Puts \"data:image/%s;base64,\" with %s replaced by the image type before the actual image data if IMAGE is non-nil."
-          (concat prefix
-                  (with-temp-buffer
-                    (set-buffer-multibyte nil)
-                    (insert-file-contents file nil nil nil t)
-                    (base64-encode-region (point-min) (point-max) 'no-line-break)
-                    (when image
-                      (goto-char (point-min))
-                      (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
-                    (buffer-string))
-                  postfix))
-
-      ;;   (defun orgTZA-html-base64-encode-p (file)
-      ;;     "Check whether FILE should be exported base64-encoded.
-      ;;                  The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
-      ;;     (when (and (stringp file)
-      ;;                (string-match "\\`file://" file))
-      ;;       (setq file (substring file (match-end 0))))
-      ;;     (and
-      ;;      (file-readable-p file)
-      ;;      (let ((size (nth 7 (file-attributes file))))
-      ;;        (<= size org-html-image-base64-max-size))
-      ;;      file))
+    ;;   (defun orgTZA-html-base64-encode-p (file)
+    ;;     "Check whether FILE should be exported base64-encoded.
+    ;;                  The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
+    ;;     (when (and (stringp file)
+    ;;                (string-match "\\`file://" file))
+    ;;       (setq file (substring file (match-end 0))))
+    ;;     (and
+    ;;      (file-readable-p file)
+    ;;      (let ((size (nth 7 (file-attributes file))))
+    ;;        (<= size org-html-image-base64-max-size))
+    ;;      file))
 
 
-      (defun orgTZA-html-base64-encode-p (file)
-        "Check whether FILE should be exported base64-encoded.
-         The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
-        (when (and (stringp file)
-                   (string-match "\\`file://" file))
-          (if (string-match "\\`file:/qsub" file)
-              (setq file (replace-regexp-in-string "\\`file:/qsub" "ssh:" file))
-            (setq file (substring file (match-end 0)))))
-        (and
-         (file-readable-p file)
-         (let ((size (nth 7 (file-attributes file))))
-           (<= size org-html-image-base64-max-size))
-         file))
+    (defun orgTZA-html-base64-encode-p (file)
+      "Check whether FILE should be exported base64-encoded.
+       The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
+      (when (and (stringp file)
+                 (string-match "\\`file://" file))
+        (if (string-match "\\`file:/qsub" file)
+            (setq file (replace-regexp-in-string "\\`file:/qsub" "ssh:" file))
+          (setq file (substring file (match-end 0)))))
+      (and
+       (file-readable-p file)
+       (let ((size (nth 7 (file-attributes file))))
+         (<= size org-html-image-base64-max-size))
+       file))
 
 
-        (defun orgTZA-html--format-image (source attributes info)
-          "Return \"img\" tag with given SOURCE and ATTRIBUTES.
-                       SOURCE is a string specifying the location of the image.
-                       ATTRIBUTES is a plist, as returned by
-                       `org-export-read-attribute'.  INFO is a plist used as
-                       a communication channel."
-          (if (string= "svg" (file-name-extension source))
-              (org-html--svg-image source attributes info)
-            (let* ((file (orgTZA-html-base64-encode-p source))
-                   (data (if file (file-to-base64-string file t)
-                           source)))
-              (org-html-close-tag
-               "img"
-               (org-html--make-attribute-string
-                (org-combine-plists
-                 (list :src data
-                       :alt (if (string-match-p "^ltxpng/" source)
-                                (org-html-encode-plain-text
-                                 (org-find-text-property-in-string 'org-latex-src source))
-                              (file-name-nondirectory source)))
-                 attributes))
-               info))))
+      (defun orgTZA-html--format-image (source attributes info)
+        "Return \"img\" tag with given SOURCE and ATTRIBUTES.
+                     SOURCE is a string specifying the location of the image.
+                     ATTRIBUTES is a plist, as returned by
+                     `org-export-read-attribute'.  INFO is a plist used as
+                     a communication channel."
+        (if (string= "svg" (file-name-extension source))
+            (org-html--svg-image source attributes info)
+          (let* ((file (orgTZA-html-base64-encode-p source))
+                 (data (if file (file-to-base64-string file t)
+                         source)))
+            (org-html-close-tag
+             "img"
+             (org-html--make-attribute-string
+              (org-combine-plists
+               (list :src data
+                     :alt (if (string-match-p "^ltxpng/" source)
+                              (org-html-encode-plain-text
+                               (org-find-text-property-in-string 'org-latex-src source))
+                            (file-name-nondirectory source)))
+               attributes))
+             info))))
 
-        (advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
+      (advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
 
-        ;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+      ;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
 #+end_src
 
 
@@ -1146,7 +1144,7 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
        (if notebook-hide-blocks (org-hide-block-all))
        (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 
-         ;;;###autoload
+     ;;; autoload
      (define-minor-mode notebook-mode
        "Minor mode for graphical tag as rounded box."
        :group 'notebook
@@ -1326,8 +1324,5 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
 
 * FORMULAS!
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-#+END_SRC
 
 $$ a=+\sqrt{2} $$

@@ -1,0 +1,189 @@
+#+OPTIONS: org-html-head-include-default-style:nil
+#+OPTIONS:   num:nil
+#+OPTIONS:   html-style:nil
+#+OPTIONS:   html-scripts:nil
+#+OPTIONS:   html-postamble:nil
+#+OPTIONS:   broken-links:mark
+#+HTML_HEAD: <style type="text/css">
+#+HTML_HEAD: @charset "utf-8";
+#+HTML_HEAD: @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+#+HTML_HEAD: @import url('https://fonts.googleapis.com/css?family=Roboto Slab:300,400,500');
+#+HTML_HEAD: @import url('https://fonts.googleapis.com/css?family=Roboto Condensed:300,400,500'); 
+#+HTML_HEAD: 
+#+HTML_HEAD: body {
+#+HTML_HEAD:     font-family: "Roboto", sans;
+#+HTML_HEAD:     font-size: 16px;
+#+HTML_HEAD:     font-weight: 300;
+#+HTML_HEAD:     line-height: 1.3em;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: #content {
+#+HTML_HEAD:     margin: 0 auto;
+#+HTML_HEAD:     max-width: 720px;
+#+HTML_HEAD:     margin-top: 5em;
+#+HTML_HEAD:     margin-bottom: 5em;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: b {
+#+HTML_HEAD:     font-weight: 400;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: a {
+#+HTML_HEAD:     color: #673AB7;
+#+HTML_HEAD:     text-decoration: none;
+#+HTML_HEAD: /*    font-weight: 400;*/
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: h1, h2, h3 {
+#+HTML_HEAD:     font-family: "Roboto Slab", serif;
+#+HTML_HEAD:     font-weight: 400;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: h1.title {
+#+HTML_HEAD:     font-weight: 400;
+#+HTML_HEAD:     line-height: 0.75em;
+#+HTML_HEAD:     padding-top: 1.em;
+#+HTML_HEAD:     padding-bottom: 0.5em;
+#+HTML_HEAD: }
+#+HTML_HEAD: h1 span.subtitle {
+#+HTML_HEAD:     font-size: 16px;
+#+HTML_HEAD:     font-weight: 300;
+#+HTML_HEAD: }
+#+HTML_HEAD: h2 {
+#+HTML_HEAD:     clear: both;
+#+HTML_HEAD:     padding-top: 1em;
+#+HTML_HEAD:     padding-bottom: 0em;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: 
+#+HTML_HEAD: p {
+#+HTML_HEAD:     text:align: justify;
+#+HTML_HEAD: /*    column-count: 2;*/
+#+HTML_HEAD:     text-align: justify;
+#+HTML_HEAD:     text-justify: inter-word;
+#+HTML_HEAD:     hyphens: auto;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: div.abstract {
+#+HTML_HEAD:     background: #f9f9ff;
+#+HTML_HEAD:     padding: .75em 1em .75em 1em;
+#+HTML_HEAD:     line-height: 1.25em;
+#+HTML_HEAD:     font-family: "Roboto Condensed", sans-serif;
+#+HTML_HEAD:     border: .5px solid #555599;
+#+HTML_HEAD:     padding-bottom: 0.25em;
+#+HTML_HEAD: }
+#+HTML_HEAD: div.abstract p {
+#+HTML_HEAD:     column-count: 1;
+#+HTML_HEAD:     margin: 0 0 0.5em 0;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: div.figure {
+#+HTML_HEAD:     padding: 0.50em .00em 0.75em .00em;
+#+HTML_HEAD: }
+#+HTML_HEAD: div.figure p {
+#+HTML_HEAD:     column-count: 1;
+#+HTML_HEAD:     line-height: 1.2em;
+#+HTML_HEAD:     font-family: "Roboto Condensed", sans-serif;
+#+HTML_HEAD: }
+#+HTML_HEAD: div.sidefig::after {
+#+HTML_HEAD:     display: block;
+#+HTML_HEAD:     content: "";
+#+HTML_HEAD:     clear: both;
+#+HTML_HEAD: }
+#+HTML_HEAD: div.sidefig div.figure p:nth-of-type(1) {
+#+HTML_HEAD:     width: 60%;
+#+HTML_HEAD:     float: left;
+#+HTML_HEAD: }
+#+HTML_HEAD: div.sidefig div.figure p:nth-of-type(2) {
+#+HTML_HEAD:     font-size: 95%;
+#+HTML_HEAD:     /*    border-top: 1px solid black; */
+#+HTML_HEAD:     background-color: #f9f9ff;
+#+HTML_HEAD:     padding: 1em;
+#+HTML_HEAD: }
+#+HTML_HEAD: div.sidefig div.figure img {
+#+HTML_HEAD:     width: 100%;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: div.figure img {
+#+HTML_HEAD:     width: 100%;
+#+HTML_HEAD: }
+#+HTML_HEAD: span.figure-number {
+#+HTML_HEAD:     font-weight: 500;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: /* --- Footnote ------------------------------------------------------------ */
+#+HTML_HEAD: div.footpara {
+#+HTML_HEAD:     display: inline-block;
+#+HTML_HEAD: }
+#+HTML_HEAD: h2.footnotes {
+#+HTML_HEAD:     font-size: 16px;
+#+HTML_HEAD:     width: 50%;
+#+HTML_HEAD:     border-bottom: 1px solid black;
+#+HTML_HEAD: }
+#+HTML_HEAD: p.footpara {
+#+HTML_HEAD:     column-count: 1;
+#+HTML_HEAD:     line-height: 1.25em;
+#+HTML_HEAD:     font-family: "Roboto Condensed", sans-serif;
+#+HTML_HEAD:     margin: 0;
+#+HTML_HEAD: }
+#+HTML_HEAD: sup {
+#+HTML_HEAD:     font-size: 0.75em;
+#+HTML_HEAD:     vertical-align: top;
+#+HTML_HEAD:     position: relative; top: -0.5em;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: /* --- Block quote --------------------------------------------------------- */
+#+HTML_HEAD: blockquote p {
+#+HTML_HEAD:     font-size: 95%;
+#+HTML_HEAD:     line-height: 1.15em;
+#+HTML_HEAD:     column-count: 1;
+#+HTML_HEAD:     padding-top: 1em;
+#+HTML_HEAD:     padding-bottom: 1.5em;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: /* --- Source blocks ------------------------------------------------------- */
+#+HTML_HEAD: code {
+#+HTML_HEAD:     font-family: "Roboto Mono", monospace;
+#+HTML_HEAD:     font-weight: 300;
+#+HTML_HEAD: }
+#+HTML_HEAD: pre.example::before {
+#+HTML_HEAD:     display: block;
+#+HTML_HEAD:     background-color: #fffff;
+#+HTML_HEAD:     content: "Output";
+#+HTML_HEAD:     font-family: "Roboto Condensed", monospace;
+#+HTML_HEAD:     font-weight: 400;
+#+HTML_HEAD:     padding-bottom: 0.25em;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: pre.example {
+#+HTML_HEAD:     font-size: 70%;
+#+HTML_HEAD:     background-color: #f9f9ff;
+#+HTML_HEAD:     line-height: 1.4em;
+#+HTML_HEAD:     font-family: "Roboto Mono", monospace;
+#+HTML_HEAD:     font-weight: 300;
+#+HTML_HEAD:     padding: 0.5em 1em 0.5em 1em;
+#+HTML_HEAD: }
+#+HTML_HEAD: 
+#+HTML_HEAD: pre.src {
+#+HTML_HEAD:     font-size: 70%;
+#+HTML_HEAD:     line-height: 1.4em;
+#+HTML_HEAD:     font-family: "Roboto Mono", monospace;
+#+HTML_HEAD:     font-weight: 300;
+#+HTML_HEAD:     padding: 0;
+#+HTML_HEAD:     margin: 0;
+#+HTML_HEAD: }
+#+HTML_HEAD: div.org-src-container {
+#+HTML_HEAD:     border: .5px solid #555599;
+#+HTML_HEAD:     padding: 0.50em 1.00em 0.75em 1.00em;
+#+HTML_HEAD:     background-color: #f9f9ff;
+#+HTML_HEAD:     margin-bottom: 0.5em;
+#+HTML_HEAD: }
+#+HTML_HEAD: label.org-src-name {
+#+HTML_HEAD:     display: block;
+#+HTML_HEAD:     font-family: "Roboto Condensed", sans-serif;
+#+HTML_HEAD:     padding-bottom: .25em;
+#+HTML_HEAD: }
+#+HTML_HEAD: span.listing-number {
+#+HTML_HEAD:     font-weight: 500;
+#+HTML_HEAD: }
+#+HTML_HEAD: </style>
