@@ -7,8 +7,7 @@
 
 *Abstract |* A Notebook system based on Emacs borrowing from existing config files. This system  works from a single org file as an attempt to be as easy as possible for non-emacs users. It handles analyses in any language supported by org and through any server with a ssh interface. Since, its contents (an org file) are automatically rendered in Github or similar, it is trivial to share analyses results with reviewers and auditors, thus providing a way for transparent review/auditing of statistical analyses. This configuration provides a more complete set of functionality than jupyter, with less hassle.
 
-* TOC                                                               :toc:
-
+* TOC :TOC: 
 
 This project is heavily inspired by existing configs:
 
@@ -236,6 +235,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
   (set-face-attribute 'default nil :height 150)  ; set font size
 
+  (setq undo-outer-limit 72000000)
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;;
   ;;;   Discovery aids
@@ -489,6 +489,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     (global-corfu-mode)
     :custom
     (corfu-auto t)                 ;; Enable auto completion
+    (corfu-preview-current nil)    ;; Disable current candidate preview
     :bind
     (:map corfu-map
           ("SPC" . corfu-insert-separator)
@@ -498,7 +499,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   ;; Part of corfu
   (use-package corfu-popupinfo
     :after corfu
-    :ensure  nil
+    :ensure nil
     :hook (corfu-mode . corfu-popupinfo-mode)
     :custom
     (corfu-popupinfo-delay '(0.25 . 0.1))
@@ -512,6 +513,9 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     :ensure t
     :config
     (corfu-terminal-mode))
+
+  (use-package corfu-doc
+    :hook (corfu-mode-hook . corfu-doc-mode))
 
   ;; Fancy completion-at-point functions; there's too much in the cape package to
   ;; configure here; dive in when you're comfortable!
@@ -565,7 +569,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 #+begin_src emacs-lisp :tangle yes :results output none
   (use-package tramp
    :ensure t
-   :custom
+   :config
      (eval-after-load 'tramp '(setenv "NCPUS" "23"))  ;; set env variables
      (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))  ;; set env variables
 
@@ -589,138 +593,139 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 * Developer amenities
 
 #+begin_src emacs-lisp :tangle yes :results output none
-  ;;; This will try to use tree-sitter modes for many languages. Please run
-  ;;;
-  ;;;   M-x treesit-install-language-grammar
-  ;;;
-  ;;; Before trying to use a treesit mode.
+                 ;;; This will try to use tree-sitter modes for many languages. Please run
+                 ;;;
+                 ;;;   M-x treesit-install-language-grammar
+                 ;;;
+                 ;;; Before trying to use a treesit mode.
 
-  ;;; Contents:
-  ;;;
-  ;;;  - Built-in config for developers
-  ;;;  - Version Control
-  ;;;  - Common file types
-  ;;;  - Eglot, the built-in LSP client for Emacs
+                 ;;; Contents:
+                 ;;;
+                 ;;;  - Built-in config for developers
+                 ;;;  - Version Control
+                 ;;;  - Common file types
+                 ;;;  - Eglot, the built-in LSP client for Emacs
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Built-in config for developers
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 ;;;
+                 ;;;   Built-in config for developers
+                 ;;;
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (use-package emacs
-    :config
-    ;; Treesitter config
+  (setq treesit-language-source-alist
+        '((r . ("https://github.com/r-lib/tree-sitter-r" "main" "src"))))
 
-    ;; Tell Emacs to prefer the treesitter mode
-    ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
-    (setq major-mode-remap-alist
-          '((yaml-mode . yaml-ts-mode)
-            (bash-mode . bash-ts-mode)
-            (js2-mode . js-ts-mode)
-            (ess-r-mode . r-ts-mode)
-            (typescript-mode . typescript-ts-mode)
-            (json-mode . json-ts-mode)
-            (css-mode . css-ts-mode)
-            (python-mode . python-ts-mode)))
-    :hook
-    ;; Auto parenthesis matching
-    ((prog-mode . electric-pair-mode)))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Version Control
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  ;; Magit: best Git client to ever exist
-  (use-package magit
-    :ensure t
-    :bind (("C-x g" . magit-status)))
+                   (use-package emacs
+                   :config
+                   ;; Treesitter config
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Common file types
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                   ;; Tell Emacs to prefer the treesitter mode
+                   ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
+                   (setq major-mode-remap-alist
+                         '((yaml-mode . yaml-ts-mode)
+                           (bash-mode . bash-ts-mode)
+                           (js2-mode . js-ts-mode)
+                           (typescript-mode . typescript-ts-mode)
+                           (json-mode . json-ts-mode)
+                           (css-mode . css-ts-mode)
+                           (python-mode . python-ts-mode)))
+                   :hook
+                   ;; Auto parenthesis matching
+                   (prog-mode . electric-pair-mode))
 
-  (use-package markdown-mode
-    :hook ((markdown-mode . visual-line-mode)))
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 ;;;
+                 ;;;   Version Control
+                 ;;;
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (use-package yaml-mode
-    :ensure t)
+                 ;; Magit: best Git client to ever exist
+                 (use-package magit
+                   :ensure t
+                   :bind (("C-x g" . magit-status)))
 
-  (use-package json-mode
-    :ensure t)
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 ;;;
+                 ;;;   Common file types
+                 ;;;
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  ;; Emacs ships with a lot of popular programming language modes. If it's not
-  ;; built in, you're almost certain to find a mode for the language you're
-  ;; looking for with a quick Internet search.
+                 (use-package markdown-mode
+                   :hook ((markdown-mode . visual-line-mode)))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Eglot, the built-in LSP client for Emacs
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 (use-package yaml-mode
+                   :ensure t)
 
-  ;; Helpful resources:
-  ;;
-  ;;  - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
+                 (use-package json-mode
+                   :ensure t)
 
-  (use-package eglot
-    ;; no :ensure t here because it's built-in
-    :defer t
-    ;; Configure hooks to automatically turn-on eglot for selected modes
-    :hook
-    ((ess-r-mode . eglot)
-     (ess-mode . eglot)
-     (org-mode . eglot))
+                 ;; Emacs ships with a lot of popular programming language modes. If it's not
+                 ;; built in, you're almost certain to find a mode for the language you're
+                 ;; looking for with a quick Internet search.
 
-    :custom
-    (eglot-send-changes-idle-time 0.1)
-    (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                 ;;;
+                 ;;;   Eglot, the built-in LSP client for Emacs
+                 ;;;
+                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    :config
-    (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
-    ;; Sometimes you need to tell Eglot where to find the language server
-    ; (add-to-list 'eglot-server-programs
-    ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
-  (setq eglot-stay-out-of '(company))
-  (add-to-list 'eglot-server-programs '((c-mode c++-mode) "clangd-10"))
- 
+                 ;; Helpful resources:
+                 ;;
+                 ;;  - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
 
-(defun company-R-objects--prefix ()
-  (unless (ess-inside-string-or-comment-p)
-    (let ((start (ess-symbol-start)))
-      (when start
-	(buffer-substring-no-properties start (point))))))
+                 (use-package eglot
+                   ;; no :ensure t here because it's built-in
+                   :defer t
+                   ;; Configure hooks to automatically turn-on eglot for selected modes
+                   :hook
+                   (
+                    (org-mode . eglot))
 
-(defun company-R-objects--candidates (arg)
-  (let ((proc (ess-get-next-available-process)))
-    (when proc
-      (with-current-buffer (process-buffer proc)
-	(all-completions arg (ess--get-cached-completions arg))))))
+                   :custom
+                   (eglot-send-changes-idle-time 0.1)
+                   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
 
-(defun company-capf-with-R-objects--check-prefix (prefix)
-  (cl-search "$" prefix))
+                   :config
+                   (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
+                   ;; Sometimes you need to tell Eglot where to find the language server
+                   ; (add-to-list 'eglot-server-programs
+                   ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+                 (setq eglot-stay-out-of '(company))
 
-(defun company-capf-with-R-objects (command &optional arg &rest ignored)
-  (interactive (list 'interactive))
-  (cl-case command
-    (interactive (company-begin-backend 'company-R-objects))
-    (prefix (company-R-objects--prefix))
-    (candidates (if (company-capf-with-R-objects--check-prefix arg)
-		    (company-R-objects--candidates arg)
-		  (company-capf command arg)))
-    (annotation (if (company-capf-with-R-objects--check-prefix arg)
-		    "R-object"
-		  (company-capf command arg)))
-    (kind (if (company-capf-with-R-objects--check-prefix arg)
-	      'field
-	    (company-capf command arg)))
-    (doc-buffer (company-capf command arg))))
-    )
 
+                (defun company-R-objects--prefix ()
+                  (unless (ess-inside-string-or-comment-p)
+                    (let ((start (ess-symbol-start)))
+                      (when start
+                        (buffer-substring-no-properties start (point))))))
+
+                (defun company-R-objects--candidates (arg)
+                  (let ((proc (ess-get-next-available-process)))
+                    (when proc
+                      (with-current-buffer (process-buffer proc)
+                        (all-completions arg (ess--get-cached-completions arg))))))
+
+                (defun company-capf-with-R-objects--check-prefix (prefix)
+                  (cl-search "$" prefix))
+
+                (defun company-capf-with-R-objects (command &optional arg &rest ignored)
+                  (interactive (list 'interactive))
+                  (cl-case command
+                    (interactive (company-begin-backend 'company-R-objects))
+                    (prefix (company-R-objects--prefix))
+                    (candidates (if (company-capf-with-R-objects--check-prefix arg)
+                                    (company-R-objects--candidates arg)
+                                  (company-capf command arg)))
+                    (annotation (if (company-capf-with-R-objects--check-prefix arg)
+                                    "R-object"
+                                  (company-capf command arg)))
+                    (kind (if (company-capf-with-R-objects--check-prefix arg)
+                              'field
+                            (company-capf command arg)))
+                    (doc-buffer (company-capf command arg))))
+                    )
 
 #+end_src
 
@@ -764,7 +769,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 * Vim mode
 
-#+begin_src emacs-lisp :results output none :tangle yes
+#+begin_src emacs-lisp :results output none :tangle yes 
 
 ;; Evil: vi emulation
 (use-package evil
@@ -790,161 +795,159 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 #+begin_src emacs-lisp :session test :results output none :tangle yes
 
-      (use-package org
-        :ensure t
-        :hook ((org-mode . visual-line-mode)  ; wrap lines at word breaks
-               (org-mode . flyspell-mode)     ; spell checking!
-               (org-mode . notebook-mode))    ; notebook mode
+     (use-package org
+       :ensure t
+       :hook ((org-mode . visual-line-mode)  ; wrap lines at word breaks
+              (org-mode . flyspell-mode)     ; spell checking!
+              (org-mode . notebook-mode)
+              (org-mode . toc-org-mode))    ; notebook mode
 
-        :bind (:map global-map
-                    ("C-c l s" . org-store-link)          ; Mnemonic: link → store
-                    ("C-c l i" . org-insert-link-global)) ; Mnemonic: link → insert
-        :init
-        (setq  org-startup-with-inline-images 'inlineimages)
-        (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
-        (setq org-confirm-babel-evaluate nil)
+       :bind (:map global-map
+                   ("C-c l s" . org-store-link)          ; Mnemonic: link → store
+                   ("C-c l i" . org-insert-link-global)) ; Mnemonic: link → insert
+       :init
+       (setq  org-startup-with-inline-images 'inlineimages)
+       (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+       (setq org-confirm-babel-evaluate nil)
+       (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
+       :custom
+       (org-display-remote-inline-images 'download)
 
-        :custom
-        (org-display-remote-inline-images 'download)
+       :config
+       (require 'oc-csl)                     ; citation support
+       (add-to-list 'org-export-backends 'md)
 
-        :config
-        (require 'oc-csl)                     ; citation support
-        (add-to-list 'org-export-backends 'md)
+       ;; Make org-open-at-point follow file links in the same window
+       (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
 
-        ;; Make org-open-at-point follow file links in the same window
-        (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
+       ;; Make exporting quotes better
+       (setq org-export-with-smart-quotes t)
 
-        ;; Make exporting quotes better
-        (setq org-export-with-smart-quotes t)
+       ;; Verbatim in slides
+       (require 'ox-latex)
+       (add-to-list 'org-latex-packages-alist '("" "minted"))
+       (setq org-latex-listings 'minted)
 
-        ;; Verbatim in slides
-        (require 'ox-latex)
-        (add-to-list 'org-latex-packages-alist '("" "minted"))
-        (setq org-latex-listings 'minted)
+       ;; toggle blocks
+       (defvar org-blocks-hidden nil)
 
-        ;; toggle blocks
-        (defvar org-blocks-hidden nil)
+       (defun org-toggle-blocks ()
+         (interactive)
+         (if org-blocks-hidden
+             (org-show-block-all)
+           (org-hide-block-all))
+         (setq-local org-blocks-hidden (not org-blocks-hidden)))
 
-        (defun org-toggle-blocks ()
-          (interactive)
-          (if org-blocks-hidden
-              (org-show-block-all)
-            (org-hide-block-all))
-          (setq-local org-blocks-hidden (not org-blocks-hidden)))
+       (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
+       ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
 
-        (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
-        ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
-
-        (add-hook 'org-mode-hook 'org-toggle-blocks)
+       (add-hook 'org-mode-hook 'org-toggle-blocks)
 
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python . t)
      (R . t)
-     (java . t)
+     (julia . t)
+     (latex . t)
      (C . t)
-     (lisp . t)))
-
-      (define-key org-mode-map (kbd "$")
-                  (lambda ()
-                    (interactive)
-                    (insert "$")
-                    (save-excursion
-                      (backward-char 1)
-                      (if (org-inside-LaTeX-fragment-p)
-                          (progn
-                            (forward-char 2)
-                            (org-preview-latex-fragment))))))
-
-        ;; (org-babel-do-load-languages
-        ;;  'org-babel-load-languages
-        ;;  '((R . t)
-        ;;    (emacs-lisp . t)))
-
-        )
-
-      ;; (require 'ess-site)
-
-      (setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
-
-      ;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
-      (require 'org)
-      (require 'ox-html)
-      (require 'base64)
-
-      (defcustom org-html-image-base64-max-size #x40000
-        "Export embedded base64 encoded images up to this size."
-        :type 'number
-        :group 'org-export-html)
-
-      (defun file-to-base64-string (file &optional image prefix postfix)
-        "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
-                     Puts \"data:image/%s;base64,\" with %s replaced by the image type before the actual image data if IMAGE is non-nil."
-        (concat prefix
-                (with-temp-buffer
-                  (set-buffer-multibyte nil)
-                  (insert-file-contents file nil nil nil t)
-                  (base64-encode-region (point-min) (point-max) 'no-line-break)
-                  (when image
-                    (goto-char (point-min))
-                    (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
-                  (buffer-string))
-                postfix))
-
-    ;;   (defun orgTZA-html-base64-encode-p (file)
-    ;;     "Check whether FILE should be exported base64-encoded.
-    ;;                  The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
-    ;;     (when (and (stringp file)
-    ;;                (string-match "\\`file://" file))
-    ;;       (setq file (substring file (match-end 0))))
-    ;;     (and
-    ;;      (file-readable-p file)
-    ;;      (let ((size (nth 7 (file-attributes file))))
-    ;;        (<= size org-html-image-base64-max-size))
-    ;;      file))
+     (emacs-lisp . t)))
 
 
-    (defun orgTZA-html-base64-encode-p (file)
-      "Check whether FILE should be exported base64-encoded.
-       The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
-      (when (and (stringp file)
-                 (string-match "\\`file://" file))
-        (if (string-match "\\`file:/qsub" file)
-            (setq file (replace-regexp-in-string "\\`file:/qsub" "ssh:" file))
-          (setq file (substring file (match-end 0)))))
-      (and
-       (file-readable-p file)
-       (let ((size (nth 7 (file-attributes file))))
-         (<= size org-html-image-base64-max-size))
-       file))
+     (define-key org-mode-map (kbd "$")
+                 (lambda ()
+                   (interactive)
+                   (insert "$")
+                   (save-excursion
+                     (backward-char 1)
+                     (if (org-inside-LaTeX-fragment-p)
+                         (progn
+                           (forward-char 2)
+                           (org-preview-latex-fragment))))))
+
+       ;; (org-babel-do-load-languages
+       ;;  'org-babel-load-languages
+       ;;  '((R . t)
+       ;;    (emacs-lisp . t)))
+
+       )
 
 
-      (defun orgTZA-html--format-image (source attributes info)
-        "Return \"img\" tag with given SOURCE and ATTRIBUTES.
-                     SOURCE is a string specifying the location of the image.
-                     ATTRIBUTES is a plist, as returned by
-                     `org-export-read-attribute'.  INFO is a plist used as
-                     a communication channel."
-        (if (string= "svg" (file-name-extension source))
-            (org-html--svg-image source attributes info)
-          (let* ((file (orgTZA-html-base64-encode-p source))
-                 (data (if file (file-to-base64-string file t)
-                         source)))
-            (org-html-close-tag
-             "img"
-             (org-html--make-attribute-string
-              (org-combine-plists
-               (list :src data
-                     :alt (if (string-match-p "^ltxpng/" source)
-                              (org-html-encode-plain-text
-                               (org-find-text-property-in-string 'org-latex-src source))
-                            (file-name-nondirectory source)))
-               attributes))
-             info))))
 
-      (advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
+     ;; (require 'ess-site)
 
-      ;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+
+     ;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+     (require 'org)
+     (require 'ox-html)
+     (require 'base64)
+
+     (defcustom org-html-image-base64-max-size #x40000
+       "Export embedded base64 encoded images up to this size."
+       :type 'number
+       :group 'org-export-html)
+
+     (defun file-to-base64-string (file &optional image prefix postfix)
+       "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
+                    Puts \"data:image/%s;base64,\" with %s replaced by the image type before the actual image data if IMAGE is non-nil."
+       (concat prefix
+               (with-temp-buffer
+                 (set-buffer-multibyte nil)
+                 (insert-file-contents file nil nil nil t)
+                 (base64-encode-region (point-min) (point-max) 'no-line-break)
+                 (when image
+                   (goto-char (point-min))
+                   (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
+                 (buffer-string))
+               postfix))
+
+
+   (defun orgTZA-html-base64-encode-p (file)
+     "Check whether FILE should be exported base64-encoded.
+      The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
+     (when (and (stringp file)
+                (string-match "\\`file:" file))
+       (if (string-match "\\`file://ssh" file)
+           (setq file (replace-regexp-in-string "\\`file://ssh" "/ssh" file))
+         (setq file (substring file (match-end 0)))))
+     (and
+      (file-readable-p file)
+      (let ((size (nth 7 (file-attributes file))))
+        (<= size org-html-image-base64-max-size))
+      file))
+
+
+     (defun orgTZA-html--format-image (source attributes info)
+       "Return \"img\" tag with given SOURCE and ATTRIBUTES.
+                    SOURCE is a string specifying the location of the image.
+                    ATTRIBUTES is a plist, as returned by
+                    `org-export-read-attribute'.  INFO is a plist used as
+                    a communication channel."
+       (if (string= "svg" (file-name-extension source))
+           (org-html--svg-image source attributes info)
+         (let* ((file (orgTZA-html-base64-encode-p source))
+                (data (if file (file-to-base64-string file t)
+                        source)))
+           (org-html-close-tag
+            "img"
+            (org-html--make-attribute-string
+             (org-combine-plists
+              (list :src data
+                    :alt (if (string-match-p "^ltxpng/" source)
+                             (org-html-encode-plain-text
+                              (org-find-text-property-in-string 'org-latex-src source))
+                           (file-name-nondirectory source)))
+              attributes))
+            info))))
+
+     (advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
+
+     ;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+
+    (use-package toc-org
+    :ensure t
+    :after org
+    :hook (org-mode-hook . toc-org-mode)
+    )
 #+end_src
 
 
@@ -1171,7 +1174,7 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
 
 * Copilot
 
-#+begin_src emacs-lisp :eval no :tangle no
+#+begin_src emacs-lisp :eval yes :tangle no 
   ;; accept completion from copilot and fallback to company
   (use-package copilot
     :ensure t
@@ -1182,141 +1185,64 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
 		("C-TAB" . 'copilot-accept-completion-by-word)
 		("C-<tab>" . 'copilot-accept-completion-by-word)))
 
-
-
-  (setq undo-outer-limit 72000000)
 #+end_src
+
+#+RESULTS:
 
 
 * ESS
 
 #+begin_src emacs-lisp :results output none :tangle yes
 
-  (use-package ess
-    :ensure t
-    :hook
-    (ess-r-mode-hook . eglot-ensure) 
-    :config
-    (setq ess-R-font-lock-keywords
-          '((ess-R-fl-keyword:keywords . t)
-            (ess-R-fl-keyword:constants . t)
-            (ess-R-fl-keyword:modifiers . t)
-            (ess-R-fl-keyword:fun-defs . t)
-            (ess-R-fl-keyword:assign-ops . t)
-            (ess-R-fl-keyword:%op% . t)
-            (ess-fl-keyword:fun-calls . t)
-            (ess-fl-keyword:numbers . t)
-            (ess-fl-keyword:operators)
-            (ess-fl-keyword:delimiters)
-            (ess-fl-keyword:=)
-            (ess-R-fl-keyword:F&T . t)))
-    (setq ess-help-own-frame 'one)  ; avoid destroying existing frame
-    (setq ess-help-reuse-window t)  ; same above
-    (setq comint-scroll-to-bottom-on-input t)
-    (setq comint-scroll-to-bottom-on-output t)
-    (setq comint-move-point-for-output t)
-    (setq comint-scroll-show-maximum-output t)
+    (use-package ess
+      :ensure t
+      :init (require 'ess-site)
+      :hook (ess-r-mode . eglot)
+      :config
+      (setq ess-history-directory "~/.cache")
+      (setq ess-R-font-lock-keywords
+            '((ess-R-fl-keyword:keywords . t)
+              (ess-R-fl-keyword:constants . t)
+              (ess-R-fl-keyword:modifiers . t)
+              (ess-R-fl-keyword:fun-defs . t)
+              (ess-R-fl-keyword:assign-ops . t)
+              (ess-R-fl-keyword:%op% . t)
+              (ess-fl-keyword:fun-calls . t)
+              (ess-fl-keyword:numbers . t)
+              (ess-fl-keyword:operators)
+              (ess-fl-keyword:delimiters)
+              (ess-fl-keyword:=)
+              (ess-R-fl-keyword:F&T . t)))
+      (setq ess-help-own-frame 'one)  ; avoid destroying existing frame
+      (setq ess-help-reuse-window t)  ; same above
+      (setq comint-scroll-to-bottom-on-input t)
+      (setq comint-scroll-to-bottom-on-output t)
+      (setq comint-move-point-for-output t)
+      (setq comint-scroll-show-maximum-output t)
 
-    ;; Trying to speed up ess on orgmode
-    (setq ess-use-flymake nil)
-    ;;(setq ess-eval-visibly-p nil)
-    ;;(setq ess-use-auto-complete 'script-only)
+      ;; Trying to speed up ess on orgmode
+      (setq ess-use-flymake nil)
+      (setq ess-eval-visibly-p 'nowait)
+      (setq ess-use-auto-complete 'script-only)
 
-    (setq display-buffer-alist
-          '(("^\\*R[:\\*]" . (display-buffer-in-side-window
-                              (side . bottom)
-                              (slot . -1)
-                              ))
-            ("^\\*R dired\\*" . (display-buffer-in-side-window
-                                 (side . right)
-                                 (slot . -1)
-                                 (window-width . 0.33)))
-            ("^\\*help\\[R\\]" . (display-buffer-in-side-window
-                                  (side . right)
-                                  (slot . 1)
-                                  (window-width . 0.33)))))
-    :custom
+      (setq display-buffer-alist
+            '(("^\\*R[:\\*]" . (display-buffer-in-side-window
+                                (side . bottom)
+                                (slot . -1)
+                                ))
+              ("^\\*R dired\\*" . (display-buffer-in-side-window
+                                   (side . right)
+                                   (slot . -1)
+                                   (window-width . 0.33)))
+              ("^\\*help\\[R\\]" . (display-buffer-in-side-window
+                                    (side . right)
+                                    (slot . 1)
+                                    (window-width . 0.33)))))
 
-    (savehist-mode 1)
+        (define-key comint-mode-map (kbd "<up>") 'comint-previous-matching-input-from-input)
+        (define-key comint-mode-map (kbd "<down>") 'comint-next-matching-input-from-input)
 
-    (add-hook 'ess-r-mode-hook
-              (lambda ()
-                (let ((r-buffer (get-buffer "*R[:*]"))
-                      (r-dired-buffer (get-buffer "*R dired*"))
-                      (help-r-buffer (get-buffer "*help[R]*")))
-                  (when r-buffer
-                    (with-selected-window (get-buffer-window r-buffer)
-                      (display-buffer-at-bottom)
-                      ))
-                  (when r-dired-buffer
-                    (with-selected-window (get-buffer-window r-dired-buffer)
-                      (set-window-parameter nil 'window-side 'right)
-                      (set-window-parameter nil 'window-slot -1)
-                      (set-window-parameter nil 'window-width 0.33)))
-                  (when help-r-buffer
-                    (with-selected-window (get-buffer-window help-r-buffer)
-                      (set-window-parameter nil 'window-side 'right)
-                      (set-window-parameter nil 'window-slot 1)
-                      (set-window-parameter nil 'window-width 0.33))))))
-    )
-
-  ;;(add-hook 'ess-r-mode-hook 'eglot-ensure)
-  ;; Open Rdired buffer with F9:
-  (add-hook 'ess-r-mode-hook
-            #'(lambda ()
-                (local-set-key (kbd "<f9>") #'ess-rdired)))
-
-  ;; Close 
-  ;;Rdired buffer with F9 as well:
-  (add-hook 'ess-rdired-mode-hook
-            #'(lambda ()
-                (local-set-key (kbd "<f9>") #'kill-buffer-and-window)))
-
-  ;; ;; (use-package company
-  ;;   :ensure t
-  ;;    :after lsp-mode
-  ;;    :hook (lsp-mode . company-mode)
-  ;;    :bind
-  ;;    (:map company-active-map
-  ;;          ("<tab>" . company-complete-selection))
-  ;;    (:map lsp-mode-map
-  ;;          ("<tab>" . company-indent-or-complete-common))
-  ;;    :custom
-  ;;    (company-minimum-prefix-length 1)
-  ;;    (company-idle-delay 0.0)
-  ;;    :config
-  ;;    ;;Turn on company-mode globally:
-  ;;    (add-hook 'ess-r-mode-hook 'global-company-mode)
-  ;;    ;;Only activate company in R scripts, not in R console:
-  ;;    (setq ess-use-company 'script-only)
-  ;;    ;; Use C-x C-o to trigger manually completion on R function args:
-  ;;    (add-hook 'ess-r-mode-hook
-  ;;              #'(lambda ()
-  ;;                  (local-set-key (kbd "C-x C-o") #'company-R-args)))
-
-  ;;    (define-key company-active-map [return] nil)
-  ;;    (define-key company-active-map [tab] 'company-complete-common)
-  ;;    (define-key company-active-map (kbd "TAB") 'company-complete-common)
-  ;;    (define-key company-active-map (kbd "M-TAB") 'company-complete-selection)
-
-  ;;    (setq company-selection-wrap-around t
-  ;;          company-tooltip-align-annotations t
-  ;;          company-idle-delay 0.36
-  ;;          company-minimum-prefix-length 2
-  ;;          company-tooltip-limit 10)
-  ;;    )
-
-  ;;   (use-package lsp-ui
-  ;;     :ensure t
-  ;;     :after lsp-mode
-  ;;     :hook (lsp-mode . lsp-ui-mode)
-  ;;    :custom
-  ;;    (lsp-ui-doc-position 'bottom)
-  ;;    ;; remap "M-." and "M-?" to point to the nice looking lsp-ui
-  ;;    ;; replacements
-  ;;    :config
-  ;;    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-  ;;    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
+  )
 
 
 #+end_src
