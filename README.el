@@ -30,7 +30,7 @@
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
 
 ;; If you want to turn off the welcome screen, uncomment this
-;(setopt inhibit-splash-screen t)
+(setopt inhibit-splash-screen t)
 
 (setopt initial-major-mode 'fundamental-mode)  ; default mode for the *scratch* buffer
 (setopt display-time-default-load-average nil) ; this information is useless for most
@@ -419,138 +419,141 @@
  )
 
 ;;; This will try to use tree-sitter modes for many languages. Please run
-               ;;;
-               ;;;   M-x treesit-install-language-grammar
-               ;;;
-               ;;; Before trying to use a treesit mode.
+;;;
+;;;   M-x treesit-install-language-grammar
+;;;
+;;; Before trying to use a treesit mode.
 
-               ;;; Contents:
-               ;;;
-               ;;;  - Built-in config for developers
-               ;;;  - Version Control
-               ;;;  - Common file types
-               ;;;  - Eglot, the built-in LSP client for Emacs
+;;; Contents:
+;;;
+;;;  - Built-in config for developers
+;;;  - Version Control
+;;;  - Common file types
+;;;  - Eglot, the built-in LSP client for Emacs
 
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-               ;;;
-               ;;;   Built-in config for developers
-               ;;;
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;   Built-in config for developers
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq treesit-language-source-alist
       '((r . ("https://github.com/r-lib/tree-sitter-r" "main" "src"))))
 
 
 
-                 (use-package emacs
-                 :config
-                 ;; Treesitter config
+(use-package emacs
+  :config
+  ;; Treesitter config
 
-                 ;; Tell Emacs to prefer the treesitter mode
-                 ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
-                 (setq major-mode-remap-alist
-                       '((yaml-mode . yaml-ts-mode)
-                         (bash-mode . bash-ts-mode)
-                         (js2-mode . js-ts-mode)
-                         (typescript-mode . typescript-ts-mode)
-                         (json-mode . json-ts-mode)
-                         (css-mode . css-ts-mode)
-                         (python-mode . python-ts-mode)))
-                 :hook
-                 ;; Auto parenthesis matching
-                 (prog-mode . electric-pair-mode))
+  ;; Tell Emacs to prefer the treesitter mode
+  ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
+  (setq major-mode-remap-alist
+	'((yaml-mode . yaml-ts-mode)
+	  (bash-mode . bash-ts-mode)
+	  (js2-mode . js-ts-mode)
+	  (typescript-mode . typescript-ts-mode)
+	  (json-mode . json-ts-mode)
+	  (css-mode . css-ts-mode)
+	  (python-mode . python-ts-mode)))
+  :hook
+  ;; Auto parenthesis matching
+  (prog-mode . electric-pair-mode))
 
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-               ;;;
-               ;;;   Version Control
-               ;;;
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;   Version Control
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-               ;; Magit: best Git client to ever exist
-               (use-package magit
-                 :ensure t
-                 :bind (("C-x g" . magit-status)))
+;; Magit: best Git client to ever exist
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
 
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-               ;;;
-               ;;;   Common file types
-               ;;;
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;   Common file types
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-               (use-package markdown-mode
-                 :hook ((markdown-mode . visual-line-mode)))
+(use-package markdown-mode
+  :hook ((markdown-mode . visual-line-mode)))
 
-               (use-package yaml-mode
-                 :ensure t)
+(use-package yaml-mode
+  :ensure t)
 
-               (use-package json-mode
-                 :ensure t)
+(use-package json-mode
+  :ensure t)
 
-               ;; Emacs ships with a lot of popular programming language modes. If it's not
-               ;; built in, you're almost certain to find a mode for the language you're
-               ;; looking for with a quick Internet search.
+;; Emacs ships with a lot of popular programming language modes. If it's not
+;; built in, you're almost certain to find a mode for the language you're
+;; looking for with a quick Internet search.
 
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-               ;;;
-               ;;;   Eglot, the built-in LSP client for Emacs
-               ;;;
-               ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;   Eglot, the built-in LSP client for Emacs
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-               ;; Helpful resources:
-               ;;
-               ;;  - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
+;; Helpful resources:
+;;
+;;  - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
 
-               (use-package eglot
-                 ;; no :ensure t here because it's built-in
-                 :defer t
-                 ;; Configure hooks to automatically turn-on eglot for selected modes
-                 :hook
-                 (
-                  (org-mode . eglot))
+(use-package eglot
+  ;; no :ensure t here because it's built-in
+  :defer t
+  ;; Configure hooks to automatically turn-on eglot for selected modes
+  :hook
+  ((org-mode . eglot-ensure)
+   (ess-r-mode . eglot-ensure)
+   (ess-mode . eglot-ensure))
+  :custom
+  (eglot-send-changes-idle-time 0.1)
+  (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
 
-                 :custom
-                 (eglot-send-changes-idle-time 0.1)
-                 (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
-
-                 :config
-                 (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
-                 ;; Sometimes you need to tell Eglot where to find the language server
-                 ; (add-to-list 'eglot-server-programs
-                 ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
-               (setq eglot-stay-out-of '(company))
+  :config
+  (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
+  ;; Sometimes you need to tell Eglot where to find the language server
+					; (add-to-list 'eglot-server-programs
+					;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+  (setq eglot-stay-out-of '(company))
 
 
-              (defun company-R-objects--prefix ()
-                (unless (ess-inside-string-or-comment-p)
-                  (let ((start (ess-symbol-start)))
-                    (when start
-                      (buffer-substring-no-properties start (point))))))
+  (defun company-R-objects--prefix ()
+    (unless (ess-inside-string-or-comment-p)
+      (let ((start (ess-symbol-start)))
+	(when start
+	  (buffer-substring-no-properties start (point))))))
 
-              (defun company-R-objects--candidates (arg)
-                (let ((proc (ess-get-next-available-process)))
-                  (when proc
-                    (with-current-buffer (process-buffer proc)
-                      (all-completions arg (ess--get-cached-completions arg))))))
+  (defun company-R-objects--candidates (arg)
+    (let ((proc (ess-get-next-available-process)))
+      (when proc
+	(with-current-buffer (process-buffer proc)
+	  (all-completions arg (ess--get-cached-completions arg))))))
 
-              (defun company-capf-with-R-objects--check-prefix (prefix)
-                (cl-search "$" prefix))
+  (defun company-capf-with-R-objects--check-prefix (prefix)
+    (cl-search "$" prefix))
 
-              (defun company-capf-with-R-objects (command &optional arg &rest ignored)
-                (interactive (list 'interactive))
-                (cl-case command
-                  (interactive (company-begin-backend 'company-R-objects))
-                  (prefix (company-R-objects--prefix))
-                  (candidates (if (company-capf-with-R-objects--check-prefix arg)
-                                  (company-R-objects--candidates arg)
-                                (company-capf command arg)))
-                  (annotation (if (company-capf-with-R-objects--check-prefix arg)
-                                  "R-object"
-                                (company-capf command arg)))
-                  (kind (if (company-capf-with-R-objects--check-prefix arg)
-                            'field
-                          (company-capf command arg)))
-                  (doc-buffer (company-capf command arg))))
-                  )
+  (defun company-capf-with-R-objects (command &optional arg &rest ignored)
+    (interactive (list 'interactive))
+    (cl-case command
+      (interactive (company-begin-backend 'company-R-objects))
+      (prefix (company-R-objects--prefix))
+      (candidates (if (company-capf-with-R-objects--check-prefix arg)
+		      (company-R-objects--candidates arg)
+		    (company-capf command arg)))
+      (annotation (if (company-capf-with-R-objects--check-prefix arg)
+		      "R-object"
+		    (company-capf command arg)))
+      (kind (if (company-capf-with-R-objects--check-prefix arg)
+		'field
+	      (company-capf command arg)))
+      (doc-buffer (company-capf command arg))))
+  )
+
+
+(use-package company-capf)
 
 (use-package citar
   :ensure t
@@ -599,392 +602,394 @@
   (evil-set-initial-state 'vterm-mode 'emacs))
 
 (use-package org
-     :ensure t
-     :hook ((org-mode . visual-line-mode)  ; wrap lines at word breaks
-	    (org-mode . flyspell-mode)     ; spell checking!
-	    (org-mode . notebook-mode)
-	    (org-mode . toc-org-mode))    ; notebook mode
+  :ensure t
+  :hook ((org-mode . visual-line-mode)  ; wrap lines at word breaks
+	 (org-mode . flyspell-mode)     ; spell checking!
+	 (org-mode . notebook-mode)
+	 (org-mode . toc-org-mode))    ; notebook mode
 
-     :bind (:map global-map
-		 ("C-c l s" . org-store-link)          ; Mnemonic: link → store
-		 ("C-c l i" . org-insert-link-global)) ; Mnemonic: link → insert
-     :init
-     (setq  org-startup-with-inline-images 'inlineimages)
-     (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
-     (setq org-confirm-babel-evaluate nil)
-     ;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
-     (setq org-format-latex-options (plist-put nil :scale 1.0))
+  :bind (:map global-map
+	      ("C-c l s" . org-store-link)          ; Mnemonic: link → store
+	      ("C-c l i" . org-insert-link-global)) ; Mnemonic: link → insert
+  :init
+  (setq  org-startup-with-inline-images 'inlineimages)
+  (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+  (setq org-confirm-babel-evaluate nil)
+					;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
+  (setq org-format-latex-options (plist-put nil :scale 1.0))
 
-     :custom
-     (org-display-remote-inline-images 'download)
+  :custom
+  (org-display-remote-inline-images 'download)
 
-     :config
-     (require 'oc-csl)                     ; citation support
-     (add-to-list 'org-export-backends 'md)
+  :config
+  (require 'oc-csl)                     ; citation support
+  (add-to-list 'org-export-backends 'md)
 
-     ;; Make org-open-at-point follow file links in the same window
-     (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
+  ;; Make org-open-at-point follow file links in the same window
+  (setf (cdr (assoc 'file org-link-frame-setup)) 'find-file)
 
-     ;; Make exporting quotes better
-     (setq org-export-with-smart-quotes t)
+  ;; Make exporting quotes better
+  (setq org-export-with-smart-quotes t)
 
-     ;; Verbatim in slides
-     (require 'ox-latex)
-     (add-to-list 'org-latex-packages-alist '("" "minted"))
-     (setq org-latex-listings 'minted)
+  ;; Verbatim in slides
+  (require 'ox-latex)
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  (setq org-latex-listings 'minted)
 
-     ;; toggle blocks
-     (defvar org-blocks-hidden nil)
+  ;; toggle blocks
+  (defvar org-blocks-hidden nil)
 
-     (defun org-toggle-blocks ()
-       (interactive)
-       (if org-blocks-hidden
-	   (org-show-block-all)
-	 (org-hide-block-all))
-       (setq-local org-blocks-hidden (not org-blocks-hidden)))
+  (defun org-toggle-blocks ()
+    (interactive)
+    (if org-blocks-hidden
+	(org-show-block-all)
+      (org-hide-block-all))
+    (setq-local org-blocks-hidden (not org-blocks-hidden)))
 
-     (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
-     ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
+  (define-key org-mode-map (kbd "C-c b t") 'org-toggle-blocks)
+  ;; (define-key org-mode-map (kbd "C-c b t") 'org-babel-switch-to-session-with-code)
 
-     (add-hook 'org-mode-hook 'org-toggle-blocks)
+  (add-hook 'org-mode-hook 'org-toggle-blocks)
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((python . t)
-   (R . t)
-   (julia . t)
-   (latex . t)
-   (C . t)
-   (emacs-lisp . t)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (R . t)
+     (julia . t)
+     (latex . t)
+     (C . t)
+     (emacs-lisp . t)))
 
-
-   (define-key org-mode-map (kbd "$")
-	       (lambda ()
-		 (interactive)
-		 (insert "$")
-		 (save-excursion
-		   (backward-char 1)
-		   (if (org-inside-LaTeX-fragment-p)
-		       (progn
-			 (forward-char 2)
-			 (org-preview-latex-fragment))))))
-
-     ;; (org-babel-do-load-languages
-     ;;  'org-babel-load-languages
-     ;;  '((R . t)
-     ;;    (emacs-lisp . t)))
-
-     )
+  (defun ek/babel-ansi ()
+    (when-let ((beg (org-babel-where-is-src-block-result nil nil)))
+      (save-excursion
+	(goto-char beg)
+	(when (looking-at org-babel-result-regexp)
+	  (let ((end (org-babel-result-end))
+		(ansi-color-context-region nil))
+	    (ansi-color-apply-on-region beg end))))))
+  (add-hook 'org-babel-after-execute-hook 'ek/babel-ansi)
 
 
+  (define-key org-mode-map (kbd "$")
+	      (lambda ()
+		(interactive)
+		(insert "$")
+		(save-excursion
+		  (backward-char 1)
+		  (if (org-inside-LaTeX-fragment-p)
+		      (progn
+			(forward-char 2)
+			(org-preview-latex-fragment))))))
 
-   ;; (require 'ess-site)
+  )
 
+;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+(require 'org)
+(require 'ox-html)
+(require 'base64)
 
-   ;; THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
-   (require 'org)
-   (require 'ox-html)
-   (require 'base64)
+(defcustom org-html-image-base64-max-size #x40000
+  "Export embedded base64 encoded images up to this size."
+  :type 'number
+  :group 'org-export-html)
 
-   (defcustom org-html-image-base64-max-size #x40000
-     "Export embedded base64 encoded images up to this size."
-     :type 'number
-     :group 'org-export-html)
-
-   (defun file-to-base64-string (file &optional image prefix postfix)
-     "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
+(defun file-to-base64-string (file &optional image prefix postfix)
+  "Transform binary file FILE into a base64-string prepending PREFIX and appending POSTFIX.
 		  Puts \"data:image/%s;base64,\" with %s replaced by the image type before the actual image data if IMAGE is non-nil."
-     (concat prefix
-	     (with-temp-buffer
-	       (set-buffer-multibyte nil)
-	       (insert-file-contents file nil nil nil t)
-	       (base64-encode-region (point-min) (point-max) 'no-line-break)
-	       (when image
-		 (goto-char (point-min))
-		 (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
-	       (buffer-string))
-	     postfix))
+  (concat prefix
+	  (with-temp-buffer
+	    (set-buffer-multibyte nil)
+	    (insert-file-contents file nil nil nil t)
+	    (base64-encode-region (point-min) (point-max) 'no-line-break)
+	    (when image
+	      (goto-char (point-min))
+	      (insert (format "data:image/%s;base64," (image-type-from-file-name file))))
+	    (buffer-string))
+	  postfix))
 
 
- (defun orgTZA-html-base64-encode-p (file)
-   "Check whether FILE should be exported base64-encoded.
+(defun orgTZA-html-base64-encode-p (file)
+  "Check whether FILE should be exported base64-encoded.
     The return value is actually FILE with \"file://\" removed if it is a prefix of FILE."
-   (when (and (stringp file)
-	      (string-match "\\`file:" file))
-     (if (string-match "\\`file://ssh" file)
-	 (setq file (replace-regexp-in-string "\\`file://ssh" "/ssh" file))
-       (setq file (substring file (match-end 0)))))
-   (and
-    (file-readable-p file)
-    (let ((size (nth 7 (file-attributes file))))
-      (<= size org-html-image-base64-max-size))
-    file))
+  (when (and (stringp file)
+	     (string-match "\\`file:" file))
+    (if (string-match "\\`file://ssh" file)
+	(setq file (replace-regexp-in-string "\\`file://ssh" "/ssh" file))
+      (setq file (substring file (match-end 0)))))
+  (and
+   (file-readable-p file)
+   (let ((size (nth 7 (file-attributes file))))
+     (<= size org-html-image-base64-max-size))
+   file))
 
 
-   (defun orgTZA-html--format-image (source attributes info)
-     "Return \"img\" tag with given SOURCE and ATTRIBUTES.
+(defun orgTZA-html--format-image (source attributes info)
+  "Return \"img\" tag with given SOURCE and ATTRIBUTES.
 		  SOURCE is a string specifying the location of the image.
 		  ATTRIBUTES is a plist, as returned by
 		  `org-export-read-attribute'.  INFO is a plist used as
 		  a communication channel."
-     (if (string= "svg" (file-name-extension source))
-	 (org-html--svg-image source attributes info)
-       (let* ((file (orgTZA-html-base64-encode-p source))
-	      (data (if file (file-to-base64-string file t)
-		      source)))
-	 (org-html-close-tag
-	  "img"
-	  (org-html--make-attribute-string
-	   (org-combine-plists
-	    (list :src data
-		  :alt (if (string-match-p "^ltxpng/" source)
-			   (org-html-encode-plain-text
-			    (org-find-text-property-in-string 'org-latex-src source))
-			 (file-name-nondirectory source)))
-	    attributes))
-	  info))))
+  (if (string= "svg" (file-name-extension source))
+      (org-html--svg-image source attributes info)
+    (let* ((file (orgTZA-html-base64-encode-p source))
+	   (data (if file (file-to-base64-string file t)
+		   source)))
+      (org-html-close-tag
+       "img"
+       (org-html--make-attribute-string
+	(org-combine-plists
+	 (list :src data
+	       :alt (if (string-match-p "^ltxpng/" source)
+			(org-html-encode-plain-text
+			 (org-find-text-property-in-string 'org-latex-src source))
+		      (file-name-nondirectory source)))
+	 attributes))
+       info))))
 
-   (advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
+(advice-add 'org-html--format-image :override #'orgTZA-html--format-image)
 
-   ;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
+;; END THIS SECTION IS FOR THE HTML EMBEDDED EXPORT
 
-  (use-package toc-org
+(use-package toc-org
   :ensure t
   :after org
   :hook (org-mode-hook . toc-org-mode)
   )
 
 (use-package svg-tag-mode
-    :ensure t
-)
-
-
-   (require 'org)
-   (require 'svg-tag-mode)
-
-   (defgroup notebook nil
-     "Customization options for `notebook-mode'."
-     :group 'org)
-
-   (defcustom notebook-babel-python-command
-     "/opt/anaconda3/bin/python"
-     "Python interpreter's path."
-     :group 'notebook)
-
-   (defcustom notebook-cite-csl-styles-dir
-     "."
-     "CSL styles citations' directory."
-     :group 'notebook)
-
-   (defcustom notebook-tags
-     '(
-       ;; Inline code
-       ;; --------------------------------------------------------------------
-       ("^#\\+call:" .     ((lambda (tag) (svg-tag-make "CALL"
-                                                        :face 'org-meta-line))
-                            (lambda () (interactive) (notebook-call-at-point)) "Call function"))
-       ("call_" .         ((lambda (tag) (svg-tag-make "CALL"
-                                                       :face 'default
-                                                       :margin 1
-                                                       :alignment 0))
-                           (lambda () (interactive) (notebook-call-at-point)) "Call function"))
-       ("src_" .          ((lambda (tag) (svg-tag-make "CALL"
-                                                       :face 'default
-                                                       :margin 1
-                                                       :alignment 0))
-                           (lambda () (interactive) (notebook-call-at-point)) "Execute code"))
-
-       ;; Code blocks
-       ;; --------------------------------------------------------------------
-       ("^#\\+begin_src\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
-                                                 (svg-tag-make (upcase tag)
-                                                               :face 'org-meta-line
-                                                               :crop-left t))))
-       ("^#\\+begin_src" . ((lambda (tag) (svg-tag-make "RUN"
-                                                        :face 'org-meta-line
-                                                        :inverse t
-                                                        :crop-right t))
-                            (lambda () (interactive) (notebook-run-at-point)) "Run code block"))
-       ("^#\\+end_src" .    ((lambda (tag) (svg-tag-make "END"
-                                                         :face 'org-meta-line))))
-
-
-       ;; Export blocks
-       ;; --------------------------------------------------------------------
-       ("^#\\+begin_export" . ((lambda (tag) (svg-tag-make "EXPORT"
-                                                           :face 'org-meta-line
-                                                           :inverse t
-                                                           :alignment 0
-                                                           :crop-right t))))
-       ("^#\\+begin_export\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
-                                                    (svg-tag-make (upcase tag)
-                                                                  :face 'org-meta-line
-                                                                  :crop-left t))))
-       ("^#\\+end_export" . ((lambda (tag) (svg-tag-make "END"
-                                                         :face 'org-meta-line))))
-
-       ;; :noexport: tag
-       ;; --------------------------------------------------------------------
-       ("\\(:no\\)export:" .    ((lambda (tag) (svg-tag-make "NO"
-                                                             :face 'org-meta-line
-                                                             :inverse t
-                                                             :crop-right t))))
-       (":no\\(export:\\)" .    ((lambda (tag) (svg-tag-make "EXPORT"
-                                                             :face 'org-meta-line
-                                                             :crop-left t))))
-
-       ;; Miscellaneous keywords
-       ;; --------------------------------------------------------------------
-       ("|RUN|" .          ((lambda (tag) (svg-tag-make "RUN"
-                                                        :face 'org-meta-line
-                                                        :inverse t))))
-       ("|RUN ALL|" .       ((lambda (tag) (svg-tag-make "RUN ALL"
-                                                         :face 'org-meta-line))
-                             (lambda () (interactive) (notebook-run)) "Run all notebook code blocks"))
-       ("|SETUP|" .         ((lambda (tag) (svg-tag-make "SETUP"
-                                                         :face 'org-meta-line))
-                             (lambda () (interactive) (notebook-setup)) "Setup notebook environment"))
-       ("|EXPORT|" .        ((lambda (tag) (svg-tag-make "EXPORT"
-                                                         :face 'org-meta-line))
-                             (lambda () (interactive) (notebook-export-html)) "Export the notebook to HTML"))
-       ("|CALL|" .          ((lambda (tag) (svg-tag-make "CALL"
-                                                         :face 'org-meta-line))))
-
-
-       ;; References
-       ;; --------------------------------------------------------------------
-       ("\\(\\[cite:@[A-Za-z]+:\\)" .
-        ((lambda (tag) (svg-tag-make (upcase tag)
-                         ;            :face 'nano-default
-                                     :inverse t
-                                     :beg 7 :end -1
-                                     :crop-right t))))
-       ("\\[cite:@[A-Za-z]+:\\([0-9a-z]+\\]\\)" .
-        ((lambda (tag) (svg-tag-make (upcase tag)
-                         ;            :face 'nano-default
-                                     :end -1
-                                     :crop-left t))))
-
-       ;; Miscellaneous properties
-       ;; --------------------------------------------------------------------
-       ("^#\\+caption:" .   ((lambda (tag) (svg-tag-make "CAPTION"
-                                                         :face 'org-meta-line))))
-       ("^#\\+latex:" .     ((lambda (tag) (svg-tag-make "LATEX"
-                                                         :face 'org-meta-line))))
-       ("^#\\+html:" .      ((lambda (tag) (svg-tag-make "HTML"
-                                                         :face 'org-meta-line))))
-       ("^#\\+name:" .      ((lambda (tag) (svg-tag-make "NAME"
-                                                         :face 'org-meta-line))))
-       ("^#\\+header:" .    ((lambda (tag) (svg-tag-make "HEADER"
-                                                         :face 'org-meta-line))))
-       ("^#\\+label:" .     ((lambda (tag) (svg-tag-make "LABEL"
-                                                         :face 'org-meta-line))))
-       ("^#\\+results:"  .  ((lambda (tag) (svg-tag-make "RESULTS"
-                                                         :face 'org-meta-line)))))
-     "The `notebook-mode' tags alist.
-       This alist is the `notebook-mode' specific tags list.  It follows the
-       same definition pattern as the `svg-tag-tags' alist (to which
-       `notebook-tags' is added)."
-     :group 'notebook)
-
-   (defcustom notebook-font-lock-case-insensitive t
-     "Make the keywords fontification case insensitive if non-nil."
-     :group 'notebook)
-
-   (defcustom notebook-indent t
-     "Default document indentation.
-       If non-nil, `org-indent' is called when the mode is turned on."
-     :group 'notebook)
-
-   (defcustom notebook-hide-blocks t
-     "Default visibility of org blocks in `notebook-mode'.
-       If non-nil, the org blocks are hidden when the mode is turned on."
-     :group 'notebook)
-
-   (defun notebook-run-at-point ()
-     "Update notebook rendering at point."
-     (interactive)
-     (org-ctrl-c-ctrl-c)
-     (org-redisplay-inline-images))
-
-   (defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
-
-   (defun notebook-setup ()
-     "Notebook mode setup function."
-     (interactive)
-     (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
-     (setq org-babel-python-command notebook-babel-python-command)
-     (require 'ob-python)
-     (require 'oc-csl))
-
-   (defalias 'notebook-run 'org-babel-execute-buffer)
-
-   (defalias 'notebook-export-html 'org-html-export-to-html)
-
-   (defun notebook-mode-on ()
-     "Activate notebook mode."
-
-     (add-to-list 'font-lock-extra-managed-props 'display)
-     (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
-     (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
-     (setq org-startup-with-inline-images t)
-     (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
-     (org-redisplay-inline-images)
-     (if notebook-indent (org-indent-mode))
-     (if notebook-hide-blocks (org-hide-block-all))
-     (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
-     (svg-tag-mode 1)
-     (message "notebook mode on"))
-
-   (defun notebook-mode-off ()
-     "Deactivate notebook mode."
-
-     (svg-tag-mode -1)
-     (if notebook-indent (org-indent-mode -1))
-     (if notebook-hide-blocks (org-hide-block-all))
-     (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
-
-   ;;; autoload
-   (define-minor-mode notebook-mode
-     "Minor mode for graphical tag as rounded box."
-     :group 'notebook
-     (if notebook-mode
-         (notebook-mode-on)
-       (notebook-mode-off)))
-
-   (define-globalized-minor-mode
-     global-notebook-mode notebook-mode notebook-mode-on)
-
-  (use-package notebook
-   :after org-mode
-   :config
-   (svg-tag-mode 1)
+  :ensure t
   )
 
 
-  ;;(provide 'notebook)
-  ;;(add-hook 'notebook-mode 'svg-tag-mode)
-  ;;(add-hook 'org-mode 'notebook-mode)
+(require 'org)
+(require 'svg-tag-mode)
+
+(defgroup notebook nil
+  "Customization options for `notebook-mode'."
+  :group 'org)
+
+(defcustom notebook-babel-python-command
+  "/opt/anaconda3/bin/python"
+  "Python interpreter's path."
+  :group 'notebook)
+
+(defcustom notebook-cite-csl-styles-dir
+  "."
+  "CSL styles citations' directory."
+  :group 'notebook)
+
+(defcustom notebook-tags
+  '(
+    ;; Inline code
+    ;; --------------------------------------------------------------------
+    ("^#\\+call:" .     ((lambda (tag) (svg-tag-make "CALL"
+						     :face 'org-meta-line))
+			 (lambda () (interactive) (notebook-call-at-point)) "Call function"))
+    ("call_" .         ((lambda (tag) (svg-tag-make "CALL"
+						    :face 'default
+						    :margin 1
+						    :alignment 0))
+			(lambda () (interactive) (notebook-call-at-point)) "Call function"))
+    ("src_" .          ((lambda (tag) (svg-tag-make "CALL"
+						    :face 'default
+						    :margin 1
+						    :alignment 0))
+			(lambda () (interactive) (notebook-call-at-point)) "Execute code"))
+
+    ;; Code blocks
+    ;; --------------------------------------------------------------------
+    ("^#\\+begin_src\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
+					      (svg-tag-make (upcase tag)
+							    :face 'org-meta-line
+							    :crop-left t))))
+    ("^#\\+begin_src" . ((lambda (tag) (svg-tag-make "RUN"
+						     :face 'org-meta-line
+						     :inverse t
+						     :crop-right t))
+			 (lambda () (interactive) (notebook-run-at-point)) "Run code block"))
+    ("^#\\+end_src" .    ((lambda (tag) (svg-tag-make "END"
+						      :face 'org-meta-line))))
+
+
+    ;; Export blocks
+    ;; --------------------------------------------------------------------
+    ("^#\\+begin_export" . ((lambda (tag) (svg-tag-make "EXPORT"
+							:face 'org-meta-line
+							:inverse t
+							:alignment 0
+							:crop-right t))))
+    ("^#\\+begin_export\\( [a-zA-Z\-]+\\)" .  ((lambda (tag)
+						 (svg-tag-make (upcase tag)
+							       :face 'org-meta-line
+							       :crop-left t))))
+    ("^#\\+end_export" . ((lambda (tag) (svg-tag-make "END"
+						      :face 'org-meta-line))))
+
+    ;; :noexport: tag
+    ;; --------------------------------------------------------------------
+    ("\\(:no\\)export:" .    ((lambda (tag) (svg-tag-make "NO"
+							  :face 'org-meta-line
+							  :inverse t
+							  :crop-right t))))
+    (":no\\(export:\\)" .    ((lambda (tag) (svg-tag-make "EXPORT"
+							  :face 'org-meta-line
+							  :crop-left t))))
+
+    ;; Miscellaneous keywords
+    ;; --------------------------------------------------------------------
+    ("|RUN|" .          ((lambda (tag) (svg-tag-make "RUN"
+						     :face 'org-meta-line
+						     :inverse t))))
+    ("|RUN ALL|" .       ((lambda (tag) (svg-tag-make "RUN ALL"
+						      :face 'org-meta-line))
+			  (lambda () (interactive) (notebook-run)) "Run all notebook code blocks"))
+    ("|SETUP|" .         ((lambda (tag) (svg-tag-make "SETUP"
+						      :face 'org-meta-line))
+			  (lambda () (interactive) (notebook-setup)) "Setup notebook environment"))
+    ("|EXPORT|" .        ((lambda (tag) (svg-tag-make "EXPORT"
+						      :face 'org-meta-line))
+			  (lambda () (interactive) (notebook-export-html)) "Export the notebook to HTML"))
+    ("|CALL|" .          ((lambda (tag) (svg-tag-make "CALL"
+						      :face 'org-meta-line))))
+
+
+    ;; References
+    ;; --------------------------------------------------------------------
+    ("\\(\\[cite:@[A-Za-z]+:\\)" .
+     ((lambda (tag) (svg-tag-make (upcase tag)
+					;            :face 'nano-default
+				  :inverse t
+				  :beg 7 :end -1
+				  :crop-right t))))
+    ("\\[cite:@[A-Za-z]+:\\([0-9a-z]+\\]\\)" .
+     ((lambda (tag) (svg-tag-make (upcase tag)
+					;            :face 'nano-default
+				  :end -1
+				  :crop-left t))))
+
+    ;; Miscellaneous properties
+    ;; --------------------------------------------------------------------
+    ("^#\\+caption:" .   ((lambda (tag) (svg-tag-make "CAPTION"
+						      :face 'org-meta-line))))
+    ("^#\\+latex:" .     ((lambda (tag) (svg-tag-make "LATEX"
+						      :face 'org-meta-line))))
+    ("^#\\+html:" .      ((lambda (tag) (svg-tag-make "HTML"
+						      :face 'org-meta-line))))
+    ("^#\\+name:" .      ((lambda (tag) (svg-tag-make "NAME"
+						      :face 'org-meta-line))))
+    ("^#\\+header:" .    ((lambda (tag) (svg-tag-make "HEADER"
+						      :face 'org-meta-line))))
+    ("^#\\+label:" .     ((lambda (tag) (svg-tag-make "LABEL"
+						      :face 'org-meta-line))))
+    ("^#\\+results:"  .  ((lambda (tag) (svg-tag-make "RESULTS"
+						      :face 'org-meta-line)))))
+  "The `notebook-mode' tags alist.
+       This alist is the `notebook-mode' specific tags list.  It follows the
+       same definition pattern as the `svg-tag-tags' alist (to which
+       `notebook-tags' is added)."
+  :group 'notebook)
+
+(defcustom notebook-font-lock-case-insensitive t
+  "Make the keywords fontification case insensitive if non-nil."
+  :group 'notebook)
+
+(defcustom notebook-indent t
+  "Default document indentation.
+       If non-nil, `org-indent' is called when the mode is turned on."
+  :group 'notebook)
+
+(defcustom notebook-hide-blocks t
+  "Default visibility of org blocks in `notebook-mode'.
+       If non-nil, the org blocks are hidden when the mode is turned on."
+  :group 'notebook)
+
+(defun notebook-run-at-point ()
+  "Update notebook rendering at point."
+  (interactive)
+  (org-ctrl-c-ctrl-c)
+  (org-redisplay-inline-images))
+
+(defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
+
+(defun notebook-setup ()
+  "Notebook mode setup function."
+  (interactive)
+  (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
+  (setq org-babel-python-command notebook-babel-python-command)
+  (require 'ob-python)
+  (require 'oc-csl))
+
+(defalias 'notebook-run 'org-babel-execute-buffer)
+
+(defalias 'notebook-export-html 'org-html-export-to-html)
+
+(defun notebook-mode-on ()
+  "Activate notebook mode."
+
+  (add-to-list 'font-lock-extra-managed-props 'display)
+  (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
+  (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+  (setq org-startup-with-inline-images t)
+  (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
+  (org-redisplay-inline-images)
+  (if notebook-indent (org-indent-mode))
+  (if notebook-hide-blocks (org-hide-block-all))
+  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+  (svg-tag-mode 1)
+  (message "notebook mode on"))
+
+(defun notebook-mode-off ()
+  "Deactivate notebook mode."
+
+  (svg-tag-mode -1)
+  (if notebook-indent (org-indent-mode -1))
+  (if notebook-hide-blocks (org-hide-block-all))
+  (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
+
+   ;;; autoload
+(define-minor-mode notebook-mode
+  "Minor mode for graphical tag as rounded box."
+  :group 'notebook
+  (if notebook-mode
+      (notebook-mode-on)
+    (notebook-mode-off)))
+
+(define-globalized-minor-mode
+  global-notebook-mode notebook-mode notebook-mode-on)
+
+(use-package notebook
+  :after org-mode
+  :config
+  (svg-tag-mode 1)
+  )
 
 (use-package ess
-    :ensure t
-    :init (require 'ess-site)
-    :hook (ess-r-mode . eglot)
-    :config
+    :ensure nil
+    :defer t
+    :init
+    (require 'ess-site)
+     (add-hook 'ess-mode-hook
+	    (lambda()
+	      (make-local-variable 'company-backends)
+	      (setq company-backends '(company-files company-capf-with-R-objects))))
+    ;;(setq ess-use-flymake nil)
+    (setq ess-use-company 'scriptonly)
+  :config
     (setq ess-history-directory "~/.cache")
     (setq ess-R-font-lock-keywords
-          '((ess-R-fl-keyword:keywords . t)
-            (ess-R-fl-keyword:constants . t)
-            (ess-R-fl-keyword:modifiers . t)
-            (ess-R-fl-keyword:fun-defs . t)
-            (ess-R-fl-keyword:assign-ops . t)
-            (ess-R-fl-keyword:%op% . t)
-            (ess-fl-keyword:fun-calls . t)
-            (ess-fl-keyword:numbers . t)
-            (ess-fl-keyword:operators)
-            (ess-fl-keyword:delimiters)
-            (ess-fl-keyword:=)
-            (ess-R-fl-keyword:F&T . t)))
+	  '((ess-R-fl-keyword:keywords . t)
+	    (ess-R-fl-keyword:constants . t)
+	    (ess-R-fl-keyword:modifiers . t)
+	    (ess-R-fl-keyword:fun-defs . t)
+	    (ess-R-fl-keyword:assign-ops . t)
+	    (ess-R-fl-keyword:%op% . t)
+	    (ess-fl-keyword:fun-calls . t)
+	    (ess-fl-keyword:numbers . t)
+	    (ess-fl-keyword:operators)
+	    (ess-fl-keyword:delimiters)
+	    (ess-fl-keyword:=)
+	    (ess-R-fl-keyword:F&T . t)))
     (setq ess-help-own-frame 'one)  ; avoid destroying existing frame
     (setq ess-help-reuse-window t)  ; same above
     (setq comint-scroll-to-bottom-on-input t)
@@ -992,24 +997,25 @@
     (setq comint-move-point-for-output t)
     (setq comint-scroll-show-maximum-output t)
 
+    (setq ess-ask-for-ess-directory nil)
+    (setq ess-startup-directory 'default-directory)
+
     ;; Trying to speed up ess on orgmode
-    (setq ess-use-flymake nil)
     (setq ess-eval-visibly-p 'nowait)
-    (setq ess-use-auto-complete 'script-only)
 
     (setq display-buffer-alist
-          '(("^\\*R[:\\*]" . (display-buffer-in-side-window
-                              (side . bottom)
-                              (slot . -1)
-                              ))
-            ("^\\*R dired\\*" . (display-buffer-in-side-window
-                                 (side . right)
-                                 (slot . -1)
-                                 (window-width . 0.33)))
-            ("^\\*help\\[R\\]" . (display-buffer-in-side-window
-                                  (side . right)
-                                  (slot . 1)
-                                  (window-width . 0.33)))))
+	  '(("^\\*R[:\\*]" . (display-buffer-in-side-window
+			      (side . bottom)
+			      (slot . -1)
+			      ))
+	    ("^\\*R dired\\*" . (display-buffer-in-side-window
+				 (side . right)
+				 (slot . -1)
+				 (window-width . 0.33)))
+	    ("^\\*help\\[R\\]" . (display-buffer-in-side-window
+				  (side . right)
+				  (slot . 1)
+				  (window-width . 0.33)))))
 
       (define-key comint-mode-map (kbd "<up>") 'comint-previous-matching-input-from-input)
       (define-key comint-mode-map (kbd "<down>") 'comint-next-matching-input-from-input)

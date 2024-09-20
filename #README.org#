@@ -680,9 +680,9 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     :defer t
     ;; Configure hooks to automatically turn-on eglot for selected modes
     :hook
-    ((org-mode . eglot-ensure)
-     (ess-r-mode . eglot-ensure)
-     (ess-mode . eglot-ensure))
+    ((org-mode . eglot)
+     (ess-r-mode . eglot)
+     (ess-mode . eglot))
     :custom
     (eglot-send-changes-idle-time 0.1)
     (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
@@ -1190,6 +1190,7 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
   (use-package ess
       :ensure nil
       :defer t
+     
       :init
       (require 'ess-site)
        (add-hook 'ess-mode-hook
