@@ -1,8 +1,6 @@
 #+OPTIONS: org-html-head-include-default-style:nil
-#+OPTIONS:   num:nil
 #+OPTIONS:   html-style:nil
 #+OPTIONS:   html-scripts:nil
-#+OPTIONS:   html-postamble:nil
 #+OPTIONS:   broken-links:mark
 #+HTML_HEAD: <style type="text/css">
 #+HTML_HEAD: @charset "utf-8";
