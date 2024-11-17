@@ -124,7 +124,7 @@ print(tableOne)
 
 [[graphs/zoom_in.gif]]
 
-** You can pass org tables directly to your R/python/whathever language code
+** You can pass org tables directly to your R/python code block
 
 #+NAME: with-rownames
 | one | 1 | 2 | 3 | 4 |  5 |
@@ -143,7 +143,99 @@ print(tab)
 
 Just use =M-x notebook-export-html=, this functionality was slightly modified using code from notebook model.
 
-- Beamer presentations are also possible
+
+* FORMULAS!
+
+
+$$ a=+\sqrt{2} $$
+
+** BEAMER export configuration example
+
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+
+#+begin_export beamer 
+#+DATE: \today
+#+OPTIONS: toc:t H:2
+#+OPTIONS: ^:nil
+#+STARTUP: latexpreview beamer
+#+PROPERTY: header-args R  :exports both :tangle no
+#+CITE_EXPORT: csl chicago-fullnote-bibliography.csl
+#+BIBLIOGRAPHY: /home/luis/Documents/library.bib
+#+LANGUAGE: en
+#+LATEX_COMPILER: lualatex
+#+LaTeX_CLASS_OPTIONS: [presentation, aspectratio=169, fragile]
+#+BEAMER_FONT_THEME: professionalfonts
+# #+BEAMER: \setmainfont{Roboto}
+#+BEAMER: \setbeamerfont{footnote}{size=\tiny}
+#+BEAMER: \setbeamercolor{itemize item}{fg=vcuyellow}
+#+BEAMER: \setbeamercolor{itemize subitem}{fg=vcuyellow}
+#+BEAMER: \setbeamercolor{itemize subsubitem}{fg=vcuyellow}
+#+BEAMER:  \setbeamertemplate{itemize item}[circle]
+#+BEAMER:  \setbeamertemplate{itemize subitem}[square]
+#+BEAMER:  \setbeamertemplate{itemize subsubitem}[triangle]
+#+BEAMER: \makeatletter
+#+BEAMER: \newsavebox{\mybox}
+#+BEAMER: \setbeamertemplate{frametitle}{
+#+BEAMER:  \nointerlineskip
+#+BEAMER:  \savebox{\mybox}{%
+#+BEAMER:      \begin{beamercolorbox}[%
+#+BEAMER:          wd=\paperwidth,%
+#+BEAMER:          sep=0pt,%
+#+BEAMER:          leftskip=\metropolis@frametitle@padding,%
+#+BEAMER:          rightskip=\metropolis@frametitle@padding,%
+#+BEAMER:        ]{frametitle}%
+#+BEAMER:      \metropolis@frametitlestrut@start\metropolis@frametitlestrut@end%
+#+BEAMER:      \end{beamercolorbox}%
+#+BEAMER:    }
+#+BEAMER:  \begin{beamercolorbox}[%
+#+BEAMER:      wd=\paperwidth,%
+#+BEAMER:      sep=0pt,%
+#+BEAMER:      leftskip=\metropolis@frametitle@padding,%
+#+BEAMER:      rightskip=\metropolis@frametitle@padding,%
+#+BEAMER:    ]{frametitle}%
+#+BEAMER:  \metropolis@frametitlestrut@start\insertframetitle\metropolis@frametitlestrut@end%
+#+BEAMER:  \hfill%
+#+BEAMER:  \raisebox{-\metropolis@frametitle@padding}{\includegraphics[height=\dimexpr\ht\mybox+\metropolis@frametitle@padding\relax]{style/VCU-Logo.png}}%
+#+BEAMER:    \hspace*{-\metropolis@frametitle@padding}
+#+BEAMER:  \end{beamercolorbox}%
+#+BEAMER: }
+#+BEAMER: \makeatother
+#+BEAMER:  \makeatletter
+#+BEAMER:  \pretocmd{\beamer@reseteecodes}{%
+#+BEAMER:    \ifbool{metropolis@standout}{
+#+BEAMER:      \endgroup
+#+BEAMER:      \boolfalse{metropolis@standout}
+#+BEAMER:    }{}
+#+BEAMER:  }{}{}
+#+BEAMER:  \makeatother
+#+latex_header: \usetheme[titleformat=smallcaps, sectionpage=progressbar]{metropolis}
+#+latex_header: \institute{Virginia Institute for Psychiatric and Behavioral Genetics  \& \\ The University of Melbourne  \& \\  Center of Data and Knowledge Integration for Health (CIDACS)}
+#+LATEX_HEADER: \usepackage{roboto}
+#+LATEX_HEADER: \usepackage{appendixnumberbeamer}
+#+LATEX_HEADER: \usepackage{embedfile}
+#+LATEX_HEADER: \usepackage{fvextra}
+# #+LATEX_HEADER: \RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines}
+#+LATEX_HEADER: \usepackage[font={tiny}]{caption}
+#+LATEX_HEADER: \embedfile[afrelationship={/Source}]{2024-VIPBG-seminar.org}
+#+LATEX_HEADER:  \titlegraphic{%
+#+LATEX_HEADER:  \hfill\includegraphics[width=3cm,height=1.6cm,keepaspectratio]{style/VCU-Logo.png}}
+#+LATEX_HEADER:  \definecolor{vcuyellow}{HTML}{FDBD10}
+#+LATEX_HEADER: \setbeamercolor{palette primary}{fg=vcuyellow, bg=black}
+#+LATEX_HEADER:  \setbeamercolor{frametitle}{fg=vcuyellow, bg=black}
+#+LATEX_HEADER:  \setbeamercolor{titlelike}{fg=black}
+#+LATEX_HEADER:  \setbeamercolor{titlepage}{fg=black, bg=vcuyellow}
+#+LATEX_HEADER:  \setbeamercolor{footnote}{bg=black}
+#+LATEX_HEADER:  \setbeamercolor{normal text}{fg=black}
+#+LATEX_HEADER:  \setbeamercolor{block title}{fg=black, bg=vcuyellow!40!white}
+# #+LATEX_HEADER:  \setbeamercolor{alerted text}{fg=black}
+#+LATEX_HEADER:  \setbeamercolor{example text}{fg=black}
+#+LATEX_HEADER:  \setbeamercolor{title separator}{fg = vcuyellow, bg=vcuyellow}
+#+LATEX_HEADER: \setbeamercolor{progress bar}{bg=white, fg=vcuyellow}
+#+LATEX_HEADER:  \setbeamercolor{progress bar in section page}{bg=white, fg=vcuyellow}
+#+end_export
+
 
 * Limitations
 
@@ -569,23 +661,23 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 #+begin_src emacs-lisp :tangle yes :results output none
   (use-package tramp
-   :ensure t
-   :config
-     (eval-after-load 'tramp '(setenv "NCPUS" "23"))  ;; set env variables
-     (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))  ;; set env variables
+    :ensure t
+    :config
+    (eval-after-load 'tramp '(setenv "NCPUS" "23"))  ;; set env variables
+    (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))  ;; set env variables
 
-     (add-to-list 'tramp-methods
-        ;; this is an internal method for interactive scripting, change to what your server uses
-       '("qsub"   
-         (tramp-login-program        "qsub")
-         (tramp-login-args           (("-I -l ncpus=23"))) ; options here?
-         ;; the local $SHELL may contain conflicting configuration
-         ;; this should be good for most cases 
-         (tramp-login-env            (("SHELL") ("/bin/sh")))
-         (tramp-remote-shell         "/bin/sh")
-         (tramp-remote-shell-args    ("-c"))
-         (tramp-connection-timeout   10)))
-   )
+    (add-to-list 'tramp-methods
+		 ;; this is an internal method for interactive scripting, change to what your server uses
+		 '("qsub"   
+		   (tramp-login-program        "qsub")
+		   (tramp-login-args           (("-I -l ncpus=23"))) ; options here?
+		   ;; the local $SHELL may contain conflicting configuration
+		   ;; this should be good for most cases 
+		   (tramp-login-env            (("SHELL") ("/bin/sh")))
+		   (tramp-remote-shell         "/bin/sh")
+		   (tramp-remote-shell-args    ("-c"))
+		   (tramp-connection-timeout   10)))
+    )
 
 
 #+end_src
@@ -734,13 +826,13 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   (use-package citar
     :ensure t
     :bind (("C-c b" . citar-insert-citation)
-           :map minibuffer-local-map
-           ("M-b" . citar-insert-preset))
+	   :map minibuffer-local-map
+	   ("M-b" . citar-insert-preset))
     :custom
     ;; Allows you to customize what citar-open does
     (citar-file-open-functions '(("html" . citar-file-open-external)
-                                 ;; ("pdf" . citar-file-open-external)
-                                 (t . find-file))))
+				 ;; ("pdf" . citar-file-open-external)
+				 (t . find-file))))
 
   ;; Optional: if you have the embark package installed, enable the ability to act
   ;; on citations with Citar by invoking `embark-act'.
@@ -765,24 +857,24 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 * Vim mode
 
-#+begin_src emacs-lisp :results output none :tangle yes 
+#+begin_src emacs-lisp :results output none :tangle no 
 
-;; Evil: vi emulation
-(use-package evil
-  :ensure t
+  ;; Evil: vi emulation
+  (use-package evil
+    :ensure t
 
-  :init
-  (setq evil-respect-visual-line-mode t)
-  (setq evil-undo-system 'undo-redo)
+    :init
+    (setq evil-respect-visual-line-mode t)
+    (setq evil-undo-system 'undo-redo)
 
-  ;; Enable this if you want C-u to scroll up, more like pure Vim
-  ;(setq evil-want-C-u-scroll t)
+    ;; Enable this if you want C-u to scroll up, more like pure Vim
+					  ;(setq evil-want-C-u-scroll t)
 
-  :config
-  (evil-mode)
+    :config
+    (evil-mode)
 
-  ;; Configuring initial major mode for some modes
-  (evil-set-initial-state 'vterm-mode 'emacs))
+    ;; Configuring initial major mode for some modes
+    (evil-set-initial-state 'vterm-mode 'emacs))
 
 
 #+end_src
@@ -953,27 +1045,27 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 This is set up last as I could not find a way to auto-install svg-tag-mode, if it is loaded last it is a lessen problem. In any case run =M-x install package= and then install =svg-tag-mode=.
 
 #+begin_src emacs-lisp :session test :tangle yes :results output none
-    (use-package svg-tag-mode
-      :ensure t
-      )
+  (use-package svg-tag-mode
+    :ensure t
+    )
 
 
-    (require 'org)
-    (require 'svg-tag-mode)
+  (require 'org)
+  (require 'svg-tag-mode)
 
-    (defgroup notebook nil
-      "Customization options for `notebook-mode'."
-      :group 'org)
+  (defgroup notebook nil
+    "Customization options for `notebook-mode'."
+    :group 'org)
 
-    (defcustom notebook-babel-python-command
-      "/opt/anaconda3/bin/python"
-      "Python interpreter's path."
-      :group 'notebook)
+  (defcustom notebook-babel-python-command
+    "/opt/anaconda3/bin/python"
+    "Python interpreter's path."
+    :group 'notebook)
 
-    (defcustom notebook-cite-csl-styles-dir
-      "."
-      "CSL styles citations' directory."
-      :group 'notebook)
+  (defcustom notebook-cite-csl-styles-dir
+    "."
+    "CSL styles citations' directory."
+    :group 'notebook)
 
   (defcustom notebook-tags
     '(
@@ -1097,79 +1189,79 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
     :group 'notebook)
 
 
-    (defcustom notebook-font-lock-case-insensitive t
-      "Make the keywords fontification case insensitive if non-nil."
-      :group 'notebook)
+  (defcustom notebook-font-lock-case-insensitive t
+    "Make the keywords fontification case insensitive if non-nil."
+    :group 'notebook)
 
-    (defcustom notebook-indent t
-      "Default document indentation.
+  (defcustom notebook-indent t
+    "Default document indentation.
 	   If non-nil, `org-indent' is called when the mode is turned on."
-      :group 'notebook)
+    :group 'notebook)
 
-    (defcustom notebook-hide-blocks t
-      "Default visibility of org blocks in `notebook-mode'.
+  (defcustom notebook-hide-blocks t
+    "Default visibility of org blocks in `notebook-mode'.
 	   If non-nil, the org blocks are hidden when the mode is turned on."
-      :group 'notebook)
+    :group 'notebook)
 
-    (defun notebook-run-at-point ()
-      "Update notebook rendering at point."
-      (interactive)
-      (org-ctrl-c-ctrl-c)
-      (org-redisplay-inline-images))
+  (defun notebook-run-at-point ()
+    "Update notebook rendering at point."
+    (interactive)
+    (org-ctrl-c-ctrl-c)
+    (org-redisplay-inline-images))
 
-    (defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
+  (defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
 
-    (defun notebook-setup ()
-      "Notebook mode setup function."
-      (interactive)
-      (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
-      (setq org-babel-python-command notebook-babel-python-command)
-      (require 'ob-python)
-      (require 'oc-csl))
+  (defun notebook-setup ()
+    "Notebook mode setup function."
+    (interactive)
+    (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
+    (setq org-babel-python-command notebook-babel-python-command)
+    (require 'ob-python)
+    (require 'oc-csl))
 
-    (defalias 'notebook-run 'org-babel-execute-buffer)
+  (defalias 'notebook-run 'org-babel-execute-buffer)
 
-    (defalias 'notebook-export-html 'org-html-export-to-html)
+  (defalias 'notebook-export-html 'org-html-export-to-html)
 
-    (defun notebook-mode-on ()
-      "Activate notebook mode."
+  (defun notebook-mode-on ()
+    "Activate notebook mode."
 
-      (add-to-list 'font-lock-extra-managed-props 'display)
-      (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
-      (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
-      (setq org-startup-with-inline-images t)
-      (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
-      (org-redisplay-inline-images)
-      (if notebook-indent (org-indent-mode))
-      (if notebook-hide-blocks (org-hide-block-all))
-      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
-      (svg-tag-mode 1)
-      (message "notebook mode on"))
+    (add-to-list 'font-lock-extra-managed-props 'display)
+    (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
+    (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+    (setq org-startup-with-inline-images t)
+    (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
+    (org-redisplay-inline-images)
+    (if notebook-indent (org-indent-mode))
+    (if notebook-hide-blocks (org-hide-block-all))
+    (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+    (svg-tag-mode 1)
+    (message "notebook mode on"))
 
-    (defun notebook-mode-off ()
-      "Deactivate notebook mode."
+  (defun notebook-mode-off ()
+    "Deactivate notebook mode."
 
-      (svg-tag-mode -1)
-      (if notebook-indent (org-indent-mode -1))
-      (if notebook-hide-blocks (org-hide-block-all))
-      (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
+    (svg-tag-mode -1)
+    (if notebook-indent (org-indent-mode -1))
+    (if notebook-hide-blocks (org-hide-block-all))
+    (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 
        ;;; autoload
-    (define-minor-mode notebook-mode
-      "Minor mode for graphical tag as rounded box."
-      :group 'notebook
-      (if notebook-mode
-	  (notebook-mode-on)
-	(notebook-mode-off)))
+  (define-minor-mode notebook-mode
+    "Minor mode for graphical tag as rounded box."
+    :group 'notebook
+    (if notebook-mode
+	(notebook-mode-on)
+      (notebook-mode-off)))
 
-    (define-globalized-minor-mode
-      global-notebook-mode notebook-mode notebook-mode-on)
+  (define-globalized-minor-mode
+    global-notebook-mode notebook-mode notebook-mode-on)
 
-    (use-package notebook
-      :after org-mode
-      :config
-      (svg-tag-mode 1)
-      )
+  (use-package notebook
+    :after org-mode
+    :config
+    (svg-tag-mode 1)
+    )
 #+end_src
 
 
@@ -1270,39 +1362,39 @@ $$ a=+\sqrt{2} $$
 
 #+begin_src emacs-lisp :results output none :tangle yes
 
-(setenv "PATH" (concat (getenv "PATH") ":~/.nimble/bin"))
-(setq exec-path (append exec-path '("~/.nimble/bin")))
+  (setenv "PATH" (concat (getenv "PATH") ":~/.nimble/bin"))
+  (setq exec-path (append exec-path '("~/.nimble/bin")))
 
-;; The `nimsuggest-path' will be set to the value of
-;; (executable-find "nimsuggest"), automatically.
-(setq nimsuggest-path "~/.nimble/bin/nimsuggest")
+  ;; The `nimsuggest-path' will be set to the value of
+  ;; (executable-find "nimsuggest"), automatically.
+  (setq nimsuggest-path "~/.nimble/bin/nimsuggest")
 
-(defun my--init-nim-mode ()
-  "Local init function for `nim-mode'."
+  (defun my--init-nim-mode ()
+    "Local init function for `nim-mode'."
 
-  ;; Just an example, by default these functions are
-  ;; already mapped to "C-c <" and "C-c >".
-  (local-set-key (kbd "M->") 'nim-indent-shift-right)
-  (local-set-key (kbd "M-<") 'nim-indent-shift-left)
+    ;; Just an example, by default these functions are
+    ;; already mapped to "C-c <" and "C-c >".
+    (local-set-key (kbd "M->") 'nim-indent-shift-right)
+    (local-set-key (kbd "M-<") 'nim-indent-shift-left)
 
-  ;; Make files in the nimble folder read only by default.
-  ;; This can prevent to edit them by accident.
-  (when (string-match "/\.nimble/" (or (buffer-file-name) "")) (read-only-mode 1))
+    ;; Make files in the nimble folder read only by default.
+    ;; This can prevent to edit them by accident.
+    (when (string-match "/\.nimble/" (or (buffer-file-name) "")) (read-only-mode 1))
 
-  ;; If you want to experiment, you can enable the following modes by
-  ;; uncommenting their line.
-  (nimsuggest-mode 1)
-  ;; Remember: Only enable either `flycheck-mode' or `flymake-mode' at the same time.
-  (flycheck-mode 1)
-  ;; (flymake-mode 1)
+    ;; If you want to experiment, you can enable the following modes by
+    ;; uncommenting their line.
+    (nimsuggest-mode 1)
+    ;; Remember: Only enable either `flycheck-mode' or `flymake-mode' at the same time.
+    (flycheck-mode 1)
+    ;; (flymake-mode 1)
 
-  ;; The following modes are disabled for Nim files just for the case
-  ;; that they are enabled globally.
-  ;; Anything that is based on smie can cause problems.
-  (auto-fill-mode 0)
-  (electric-indent-local-mode 0)
-)
+    ;; The following modes are disabled for Nim files just for the case
+    ;; that they are enabled globally.
+    ;; Anything that is based on smie can cause problems.
+    (auto-fill-mode 0)
+    (electric-indent-local-mode 0)
+    )
 
-(add-hook 'nim-mode-hook 'my--init-nim-mode)
+  (add-hook 'nim-mode-hook 'my--init-nim-mode)
 
 #+end_src
