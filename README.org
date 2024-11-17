@@ -953,27 +953,27 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 This is set up last as I could not find a way to auto-install svg-tag-mode, if it is loaded last it is a lessen problem. In any case run =M-x install package= and then install =svg-tag-mode=.
 
 #+begin_src emacs-lisp :session test :tangle yes :results output none
-  (use-package svg-tag-mode
-    :ensure t
-    )
+    (use-package svg-tag-mode
+      :ensure t
+      )
 
 
-  (require 'org)
-  (require 'svg-tag-mode)
+    (require 'org)
+    (require 'svg-tag-mode)
 
-  (defgroup notebook nil
-    "Customization options for `notebook-mode'."
-    :group 'org)
+    (defgroup notebook nil
+      "Customization options for `notebook-mode'."
+      :group 'org)
 
-  (defcustom notebook-babel-python-command
-    "/opt/anaconda3/bin/python"
-    "Python interpreter's path."
-    :group 'notebook)
+    (defcustom notebook-babel-python-command
+      "/opt/anaconda3/bin/python"
+      "Python interpreter's path."
+      :group 'notebook)
 
-  (defcustom notebook-cite-csl-styles-dir
-    "."
-    "CSL styles citations' directory."
-    :group 'notebook)
+    (defcustom notebook-cite-csl-styles-dir
+      "."
+      "CSL styles citations' directory."
+      :group 'notebook)
 
   (defcustom notebook-tags
     '(
@@ -1006,6 +1006,12 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
 			   (lambda () (interactive) (notebook-run-at-point)) "Run code block"))
       ("^#\\+end_src" .    ((lambda (tag) (svg-tag-make "END"
 							:face 'org-meta-line))))
+      (":session" . ((lambda (tag) (svg-tag-make "ZOOM-IN"
+						 :face 'org-meta-line
+						 :inverse t
+						 :crop-right t))
+		     (lambda () (interactive) (mb/org-babel-zoom-in)) "Zoom-in"))
+
 
 
       ;; Export blocks
@@ -1043,6 +1049,10 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
       ("|SETUP|" .         ((lambda (tag) (svg-tag-make "SETUP"
 							:face 'org-meta-line))
 			    (lambda () (interactive) (notebook-setup)) "Setup notebook environment"))
+      ("|ZOOM-IN-CODE|" .       ((lambda (tag) (svg-tag-make "ZOOM-IN"
+							     :face 'org-meta-line))
+				 (lambda () (interactive) (mb/org-babel-zoom-in)) "Zoom-in"))
+
       ("|EXPORT|" .        ((lambda (tag) (svg-tag-make "EXPORT"
 							:face 'org-meta-line))
 			    (lambda () (interactive) (notebook-export-html)) "Export the notebook to HTML"))
@@ -1086,79 +1096,80 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
 	 `notebook-tags' is added)."
     :group 'notebook)
 
-  (defcustom notebook-font-lock-case-insensitive t
-    "Make the keywords fontification case insensitive if non-nil."
-    :group 'notebook)
 
-  (defcustom notebook-indent t
-    "Default document indentation.
-	 If non-nil, `org-indent' is called when the mode is turned on."
-    :group 'notebook)
+    (defcustom notebook-font-lock-case-insensitive t
+      "Make the keywords fontification case insensitive if non-nil."
+      :group 'notebook)
 
-  (defcustom notebook-hide-blocks t
-    "Default visibility of org blocks in `notebook-mode'.
-	 If non-nil, the org blocks are hidden when the mode is turned on."
-    :group 'notebook)
+    (defcustom notebook-indent t
+      "Default document indentation.
+	   If non-nil, `org-indent' is called when the mode is turned on."
+      :group 'notebook)
 
-  (defun notebook-run-at-point ()
-    "Update notebook rendering at point."
-    (interactive)
-    (org-ctrl-c-ctrl-c)
-    (org-redisplay-inline-images))
+    (defcustom notebook-hide-blocks t
+      "Default visibility of org blocks in `notebook-mode'.
+	   If non-nil, the org blocks are hidden when the mode is turned on."
+      :group 'notebook)
 
-  (defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
+    (defun notebook-run-at-point ()
+      "Update notebook rendering at point."
+      (interactive)
+      (org-ctrl-c-ctrl-c)
+      (org-redisplay-inline-images))
 
-  (defun notebook-setup ()
-    "Notebook mode setup function."
-    (interactive)
-    (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
-    (setq org-babel-python-command notebook-babel-python-command)
-    (require 'ob-python)
-    (require 'oc-csl))
+    (defalias 'notebook-call-at-point 'org-ctrl-c-ctrl-c)
 
-  (defalias 'notebook-run 'org-babel-execute-buffer)
+    (defun notebook-setup ()
+      "Notebook mode setup function."
+      (interactive)
+      (setq org-cite-csl-styles-dir notebook-cite-csl-styles-dir)
+      (setq org-babel-python-command notebook-babel-python-command)
+      (require 'ob-python)
+      (require 'oc-csl))
 
-  (defalias 'notebook-export-html 'org-html-export-to-html)
+    (defalias 'notebook-run 'org-babel-execute-buffer)
 
-  (defun notebook-mode-on ()
-    "Activate notebook mode."
+    (defalias 'notebook-export-html 'org-html-export-to-html)
 
-    (add-to-list 'font-lock-extra-managed-props 'display)
-    (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
-    (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
-    (setq org-startup-with-inline-images t)
-    (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
-    (org-redisplay-inline-images)
-    (if notebook-indent (org-indent-mode))
-    (if notebook-hide-blocks (org-hide-block-all))
-    (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
-    (svg-tag-mode 1)
-    (message "notebook mode on"))
+    (defun notebook-mode-on ()
+      "Activate notebook mode."
 
-  (defun notebook-mode-off ()
-    "Deactivate notebook mode."
+      (add-to-list 'font-lock-extra-managed-props 'display)
+      (setq font-lock-keywords-case-fold-search notebook-font-lock-case-insensitive)
+      (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
+      (setq org-startup-with-inline-images t)
+      (mapc #'(lambda (tag) (add-to-list 'svg-tag-tags tag)) notebook-tags)
+      (org-redisplay-inline-images)
+      (if notebook-indent (org-indent-mode))
+      (if notebook-hide-blocks (org-hide-block-all))
+      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+      (svg-tag-mode 1)
+      (message "notebook mode on"))
 
-    (svg-tag-mode -1)
-    (if notebook-indent (org-indent-mode -1))
-    (if notebook-hide-blocks (org-hide-block-all))
-    (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
+    (defun notebook-mode-off ()
+      "Deactivate notebook mode."
 
-     ;;; autoload
-  (define-minor-mode notebook-mode
-    "Minor mode for graphical tag as rounded box."
-    :group 'notebook
-    (if notebook-mode
-	(notebook-mode-on)
-      (notebook-mode-off)))
+      (svg-tag-mode -1)
+      (if notebook-indent (org-indent-mode -1))
+      (if notebook-hide-blocks (org-hide-block-all))
+      (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 
-  (define-globalized-minor-mode
-    global-notebook-mode notebook-mode notebook-mode-on)
+       ;;; autoload
+    (define-minor-mode notebook-mode
+      "Minor mode for graphical tag as rounded box."
+      :group 'notebook
+      (if notebook-mode
+	  (notebook-mode-on)
+	(notebook-mode-off)))
 
-  (use-package notebook
-    :after org-mode
-    :config
-    (svg-tag-mode 1)
-    )
+    (define-globalized-minor-mode
+      global-notebook-mode notebook-mode notebook-mode-on)
+
+    (use-package notebook
+      :after org-mode
+      :config
+      (svg-tag-mode 1)
+      )
 #+end_src
 
 
@@ -1255,9 +1266,9 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
 $$ a=+\sqrt{2} $$
 
 
-* Support for Nim language
+* Support for the Nim language
 
-#+begin_src
+#+begin_src emacs-lisp :results output none :tangle yes
 
 (setenv "PATH" (concat (getenv "PATH") ":~/.nimble/bin"))
 (setq exec-path (append exec-path '("~/.nimble/bin")))
