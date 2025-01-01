@@ -1021,7 +1021,6 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
     :ensure t
     )
 
-
   (require 'org)
   (require 'svg-tag-mode)
 
