@@ -400,23 +400,23 @@
 (which-key-show-top-level)
 
 (use-package tramp
- :ensure t
- :config
-   (eval-after-load 'tramp '(setenv "NCPUS" "23"))  ;; set env variables
-   (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))  ;; set env variables
+  :ensure t
+  :config
+  (eval-after-load 'tramp '(setenv "NCPUS" "23"))  ;; set env variables
+  (eval-after-load 'tramp '(setenv "OMP_NUM_THREADS" "23"))  ;; set env variables
 
-   (add-to-list 'tramp-methods
-      ;; this is an internal method for interactive scripting, change to what your server uses
-     '("qsub"   
-       (tramp-login-program        "qsub")
-       (tramp-login-args           (("-I -l ncpus=23"))) ; options here?
-       ;; the local $SHELL may contain conflicting configuration
-       ;; this should be good for most cases 
-       (tramp-login-env            (("SHELL") ("/bin/sh")))
-       (tramp-remote-shell         "/bin/sh")
-       (tramp-remote-shell-args    ("-c"))
-       (tramp-connection-timeout   10)))
- )
+  (add-to-list 'tramp-methods
+	       ;; this is an internal method for interactive scripting, change to what your server uses
+	       '("qsub"   
+		 (tramp-login-program        "qsub")
+		 (tramp-login-args           (("-I -l ncpus=23"))) ; options here?
+		 ;; the local $SHELL may contain conflicting configuration
+		 ;; this should be good for most cases 
+		 (tramp-login-env            (("SHELL") ("/bin/sh")))
+		 (tramp-remote-shell         "/bin/sh")
+		 (tramp-remote-shell-args    ("-c"))
+		 (tramp-connection-timeout   10)))
+  )
 
 ;;; This will try to use tree-sitter modes for many languages. Please run
 ;;;
@@ -504,10 +504,6 @@
   ;; no :ensure t here because it's built-in
   :defer t
   ;; Configure hooks to automatically turn-on eglot for selected modes
-  :hook
-  ((org-mode . eglot-ensure)
-   (ess-r-mode . eglot-ensure)
-   (ess-mode . eglot-ensure))
   :custom
   (eglot-send-changes-idle-time 0.1)
   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
@@ -552,19 +548,16 @@
       (doc-buffer (company-capf command arg))))
   )
 
-
-(use-package company-capf)
-
 (use-package citar
   :ensure t
   :bind (("C-c b" . citar-insert-citation)
-         :map minibuffer-local-map
-         ("M-b" . citar-insert-preset))
+	 :map minibuffer-local-map
+	 ("M-b" . citar-insert-preset))
   :custom
   ;; Allows you to customize what citar-open does
   (citar-file-open-functions '(("html" . citar-file-open-external)
-                               ;; ("pdf" . citar-file-open-external)
-                               (t . find-file))))
+			       ;; ("pdf" . citar-file-open-external)
+			       (t . find-file))))
 
 ;; Optional: if you have the embark package installed, enable the ability to act
 ;; on citations with Citar by invoking `embark-act'.
@@ -583,23 +576,6 @@
   :config
   (citar-org-roam-mode)
   (setq citar-org-roam-note-title-template "${author} - ${title}\n#+filetags: ${tags}"))
-
-;; Evil: vi emulation
-(use-package evil
-  :ensure t
-
-  :init
-  (setq evil-respect-visual-line-mode t)
-  (setq evil-undo-system 'undo-redo)
-
-  ;; Enable this if you want C-u to scroll up, more like pure Vim
-  ;(setq evil-want-C-u-scroll t)
-
-  :config
-  (evil-mode)
-
-  ;; Configuring initial major mode for some modes
-  (evil-set-initial-state 'vterm-mode 'emacs))
 
 (use-package org
   :ensure t
@@ -810,6 +786,12 @@
 			 (lambda () (interactive) (notebook-run-at-point)) "Run code block"))
     ("^#\\+end_src" .    ((lambda (tag) (svg-tag-make "END"
 						      :face 'org-meta-line))))
+    (":session" . ((lambda (tag) (svg-tag-make "ZOOM-IN"
+					       :face 'org-meta-line
+					       :inverse t
+					       :crop-right t))
+		   (lambda () (interactive) (mb/org-babel-zoom-in)) "Zoom-in"))
+
 
 
     ;; Export blocks
@@ -847,6 +829,10 @@
     ("|SETUP|" .         ((lambda (tag) (svg-tag-make "SETUP"
 						      :face 'org-meta-line))
 			  (lambda () (interactive) (notebook-setup)) "Setup notebook environment"))
+    ("|ZOOM-IN-CODE|" .       ((lambda (tag) (svg-tag-make "ZOOM-IN"
+							   :face 'org-meta-line))
+			       (lambda () (interactive) (mb/org-babel-zoom-in)) "Zoom-in"))
+
     ("|EXPORT|" .        ((lambda (tag) (svg-tag-make "EXPORT"
 						      :face 'org-meta-line))
 			  (lambda () (interactive) (notebook-export-html)) "Export the notebook to HTML"))
@@ -890,18 +876,19 @@
        `notebook-tags' is added)."
   :group 'notebook)
 
+
 (defcustom notebook-font-lock-case-insensitive t
   "Make the keywords fontification case insensitive if non-nil."
   :group 'notebook)
 
 (defcustom notebook-indent t
   "Default document indentation.
-       If non-nil, `org-indent' is called when the mode is turned on."
+	 If non-nil, `org-indent' is called when the mode is turned on."
   :group 'notebook)
 
 (defcustom notebook-hide-blocks t
   "Default visibility of org blocks in `notebook-mode'.
-       If non-nil, the org blocks are hidden when the mode is turned on."
+	 If non-nil, the org blocks are hidden when the mode is turned on."
   :group 'notebook)
 
 (defun notebook-run-at-point ()
@@ -947,7 +934,7 @@
   (if notebook-hide-blocks (org-hide-block-all))
   (remove-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 
-   ;;; autoload
+     ;;; autoload
 (define-minor-mode notebook-mode
   "Minor mode for graphical tag as rounded box."
   :group 'notebook
@@ -964,60 +951,100 @@
   (svg-tag-mode 1)
   )
 
+(defun my-ess-mode-hook () (ess-switch-to-inferior-or-script-buffer t) ; Switch to ESS process buffer
+       (ess-rdired)) ; Open ESS Dired
+
 (use-package ess
-    :ensure nil
-    :defer t
-    :init
-    (require 'ess-site)
-     (add-hook 'ess-mode-hook
+  :ensure t 
+  :defer t
+  :init
+  (add-hook 'ess-mode-hook
 	    (lambda()
 	      (make-local-variable 'company-backends)
 	      (setq company-backends '(company-files company-capf-with-R-objects))))
-    ;;(setq ess-use-flymake nil)
-    (setq ess-use-company 'scriptonly)
+  (add-hook 'ess-mode-hook 'my-ess-mode-hook)
+  (add-hook 'ess-mode-hook 'eglot-mode)
+  (add-hook 'ess-r-mode-hook 'eglot-mode)
+  ;;(setq ess-use-flymake nil)
+  (setq ess-use-company 'scriptonly)
   :config
-    (setq ess-history-directory "~/.cache")
-    (setq ess-R-font-lock-keywords
-	  '((ess-R-fl-keyword:keywords . t)
-	    (ess-R-fl-keyword:constants . t)
-	    (ess-R-fl-keyword:modifiers . t)
-	    (ess-R-fl-keyword:fun-defs . t)
-	    (ess-R-fl-keyword:assign-ops . t)
-	    (ess-R-fl-keyword:%op% . t)
-	    (ess-fl-keyword:fun-calls . t)
-	    (ess-fl-keyword:numbers . t)
-	    (ess-fl-keyword:operators)
-	    (ess-fl-keyword:delimiters)
-	    (ess-fl-keyword:=)
-	    (ess-R-fl-keyword:F&T . t)))
-    (setq ess-help-own-frame 'one)  ; avoid destroying existing frame
-    (setq ess-help-reuse-window t)  ; same above
-    (setq comint-scroll-to-bottom-on-input t)
-    (setq comint-scroll-to-bottom-on-output t)
-    (setq comint-move-point-for-output t)
-    (setq comint-scroll-show-maximum-output t)
+  (setq ess-history-directory "~/.cache")
+  (setq ess-R-font-lock-keywords
+	'((ess-R-fl-keyword:keywords . t)
+	  (ess-R-fl-keyword:constants . t)
+	  (ess-R-fl-keyword:modifiers . t)
+	  (ess-R-fl-keyword:fun-defs . t)
+	  (ess-R-fl-keyword:assign-ops . t)
+	  (ess-R-fl-keyword:%op% . t)
+	  (ess-fl-keyword:fun-calls . t)
+	  (ess-fl-keyword:numbers . t)
+	  (ess-fl-keyword:operators)
+	  (ess-fl-keyword:delimiters)
+	  (ess-fl-keyword:=)
+	  (ess-R-fl-keyword:F&T . t)))
+  (setq ess-help-own-frame 'one)  ; avoid destroying existing frame
+  (setq ess-help-reuse-window t)  ; same above
+  (setq comint-scroll-to-bottom-on-input t)
+  (setq comint-scroll-to-bottom-on-output t)
+  (setq comint-move-point-for-output t)
+  (setq comint-scroll-show-maximum-output t)
 
-    (setq ess-ask-for-ess-directory nil)
-    (setq ess-startup-directory 'default-directory)
+  (setq ess-ask-for-ess-directory nil)
+  (setq ess-startup-directory 'default-directory)
 
-    ;; Trying to speed up ess on orgmode
-    (setq ess-eval-visibly-p 'nowait)
+  ;; Trying to speed up ess on orgmode
+  (setq ess-eval-visibly-p 'nowait)
 
-    (setq display-buffer-alist
-	  '(("^\\*R[:\\*]" . (display-buffer-in-side-window
-			      (side . bottom)
-			      (slot . -1)
-			      ))
-	    ("^\\*R dired\\*" . (display-buffer-in-side-window
-				 (side . right)
-				 (slot . -1)
-				 (window-width . 0.33)))
-	    ("^\\*help\\[R\\]" . (display-buffer-in-side-window
-				  (side . right)
-				  (slot . 1)
-				  (window-width . 0.33)))))
+  (setq display-buffer-alist
+	'(("^\\*R[:\\*]" . (display-buffer-in-side-window
+			    (side . bottom)
+			    (slot . -1)
+			    ))
+	  ("^\\*R dired\\*" . (display-buffer-in-side-window
+			       (side . right)
+			       (slot . -1)
+			       (window-width . 0.25)))
+	  ("^\\*help\\[R\\]" . (display-buffer-in-side-window
+				(side . right)
+				(slot . 1)
+				(window-width . 0.33)))))
 
-      (define-key comint-mode-map (kbd "<up>") 'comint-previous-matching-input-from-input)
-      (define-key comint-mode-map (kbd "<down>") 'comint-next-matching-input-from-input)
+  (define-key comint-mode-map (kbd "<up>") 'comint-previous-matching-input-from-input)
+  (define-key comint-mode-map (kbd "<down>") 'comint-next-matching-input-from-input)
 
-)
+  )
+
+(setenv "PATH" (concat (getenv "PATH") ":~/.nimble/bin"))
+(setq exec-path (append exec-path '("~/.nimble/bin")))
+
+;; The `nimsuggest-path' will be set to the value of
+;; (executable-find "nimsuggest"), automatically.
+(setq nimsuggest-path "~/.nimble/bin/nimsuggest")
+
+(defun my--init-nim-mode ()
+  "Local init function for `nim-mode'."
+
+  ;; Just an example, by default these functions are
+  ;; already mapped to "C-c <" and "C-c >".
+  (local-set-key (kbd "M->") 'nim-indent-shift-right)
+  (local-set-key (kbd "M-<") 'nim-indent-shift-left)
+
+  ;; Make files in the nimble folder read only by default.
+  ;; This can prevent to edit them by accident.
+  (when (string-match "/\.nimble/" (or (buffer-file-name) "")) (read-only-mode 1))
+
+  ;; If you want to experiment, you can enable the following modes by
+  ;; uncommenting their line.
+  (nimsuggest-mode 1)
+  ;; Remember: Only enable either `flycheck-mode' or `flymake-mode' at the same time.
+  (flycheck-mode 1)
+  ;; (flymake-mode 1)
+
+  ;; The following modes are disabled for Nim files just for the case
+  ;; that they are enabled globally.
+  ;; Anything that is based on smie can cause problems.
+  (auto-fill-mode 0)
+  (electric-indent-local-mode 0)
+  )
+
+(add-hook 'nim-mode-hook 'my--init-nim-mode)

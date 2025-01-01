@@ -1,5 +1,5 @@
+#+TITLE: Sane alternative to workbenches in science 
 #+AUTHOR: lf-araujo 
-#+TITLE: Notebook system for the Mx team
 #+OPTIONS: toc:2
 #+PROPERTY: header-args :tangle init.el
 #+SETUPFILE: "./style.theme"
@@ -15,15 +15,15 @@ This project is heavily inspired by existing configs:
 2. Emacs notebook-mode [[https://github.com/rougier/notebook-mode]].
 
 
-It was created in order to simplify Emacs use as a server-ready Notebook.
+The main motivation is the increasing pay-to-use workbenches creeping in several areas in science. The idea is that if one simple ol'ssh connection is provided, a full research environment (think RStudio server) is available from your local machine, your plots and tables are automatically pulled from the remote.
 
 * Running
 
-- In order to run this you need =emacs -q -f org-babel-load-file= and select this README.org.
-- Although most packages will be installed in the first run, pay attention to the warnings and manually install them with =Ctrl-Shift-P package-install=.
-- The first run will take some time to compile packages.
+- In order to run this you need =emacs -q -f org-babel-load-file= and select this README.org, or substitute your init.el file with README.el (also provided).
+- Although most packages will be installed in the first run, pay attention to the warnings and manually install any remainder missing packages with =Ctrl-Shift-P package-install=. This is unlikely to happen.
+- The first run will take some time to compile packages, don't worry.
 - Vim mode is available, but not enabled. In order to enable it, go to the vim mode section and set :eval yes.
-- All you can ever need is listed in =Ctrl-Shift-P package-install=.
+- All you can ever need will appear as a command after pressing the combination =Ctrl-Shift-P=.
 - Once done with analyses provide the link to your repo in your paper
   
 * The notebook in action
@@ -143,9 +143,7 @@ print(tab)
 
 Just use =M-x notebook-export-html=, this functionality was slightly modified using code from notebook model.
 
-
 * FORMULAS!
-
 
 $$ a=+\sqrt{2} $$
 
@@ -236,38 +234,34 @@ $$ a=+\sqrt{2} $$
 #+LATEX_HEADER:  \setbeamercolor{progress bar in section page}{bg=white, fg=vcuyellow}
 #+end_export
 
-
 * Limitations
 
 Although knowing to work in Emacs is not required (since which-key is active, and doing anything is really a matter of hitting =Ctrl-Shift-P=), Emacs bindings are too complex. I am still thinking on how to make keybindings more accessible.  
 
 * TODO
 
-- [X] Figure out why eglot is not starting with ess
-- [ ] Simplify keybindings.
 - [ ] Magit workflow to easily share notebooks within the interface
+- [X] Figure out why eglot is not starting with ess
+- [X] Simplify keybindings. CUA mode enabled by default
 - [X] Figure out why svg-tag-mode does not load in the first try completely
 - [X] Figure out why :toc: is not autopopulating 
 
 * General configuration
 
 #+begin_src emacs-lisp :session test :tangle yes
-
-  ;;; Guardrail
+   ;;; Guardrail
 
   (when (< emacs-major-version 29)
     (error (format "Emacs Bedrock only works with Emacs 29 and newer; you have version ~a" emacs-major-version)))
 
-
-
   ;; This initializes the packages for when one is reading the org file directly
   (package-initialize)
 
-          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-          ;;;
-          ;;;   Basic settings
-          ;;;
-          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Basic settings
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; Package initialization
   ;;
@@ -286,6 +280,9 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
   ;; If you want to turn off the welcome screen, uncomment this
   (setopt inhibit-splash-screen t)
+
+  ;; Disable menu bar 
+  (menu-bar-mode -1)
 
   (setopt initial-major-mode 'fundamental-mode)  ; default mode for the *scratch* buffer
   (setopt display-time-default-load-average nil) ; this information is useless for most
@@ -311,20 +308,8 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   (when (display-graphic-p)
     (context-menu-mode))
 
-  ; Disable the bell
+					  ; Disable the bell
   (setq ring-bell-function 'ignore)
-
-  ;; Don't litter file system with *~ backup files; put them all inside
-  ;; ~/.emacs.d/backup or wherever
-  (defun bedrock--backup-file-name (fpath)
-    "Return a new file path of a given file path.
-          If the new path's directories does not exist, create them."
-    (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
-           (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
-           (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
-      (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
-      backupFilePath))
-  (setopt make-backup-file-name-function 'bedrock--backup-file-name)
 
   (set-face-attribute 'default nil :height 150)  ; set font size
 
@@ -367,7 +352,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   (setopt completions-format 'one-column)
   (setopt completions-group t)
   (setopt completion-auto-select 'second-tab)            ; Much more eager
-  ;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
+					  ;(setopt completion-auto-select t)                     ; See `C-h v completion-auto-select' for more possible values
 
   (keymap-set minibuffer-mode-map "TAB" 'minibuffer-complete) ; TAB acts more like how it does in the shell
 
@@ -382,9 +367,9 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   ;; For a fancier built-in completion option, try ido-mode,
   ;; icomplete-vertical, or fido-mode. See also the file extras/base.el
 
-  ;(icomplete-vertical-mode)
-  ;(fido-vertical-mode)
-  ;(setopt icomplete-delay-completions-threshold 4000)
+  ;;(icomplete-vertical-mode)
+  ;;(fido-vertical-mode)
+  ;;(setopt icomplete-delay-completions-threshold 4000)
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;;
@@ -489,7 +474,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     :ensure t
     :demand t
     :bind (("C-c j" . avy-goto-line)
-           ("S-j"   . avy-goto-char-timer)))
+	   ("S-j"   . avy-goto-char-timer)))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;;
@@ -501,22 +486,22 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   (use-package consult
     :ensure t
     :bind (
-           ;; Drop-in replacements
-           ("C-x b" . consult-buffer)     ; orig. switch-to-buffer
-           ("M-y"   . consult-yank-pop)   ; orig. yank-pop
-           ;; Searching
-           ("M-s r" . consult-ripgrep)
-           ("M-s l" . consult-line)       ; Alternative: rebind C-s to use
-           ("M-s s" . consult-line)       ; consult-line instead of isearch, bind
-           ("M-s L" . consult-line-multi) ; isearch to M-s s
-           ("M-s o" . consult-outline)
-           ;; Isearch integration
-           :map isearch-mode-map
-           ("M-e" . consult-isearch-history)   ; orig. isearch-edit-string
-           ("M-s e" . consult-isearch-history) ; orig. isearch-edit-string
-           ("M-s l" . consult-line)            ; needed by consult-line to detect isearch
-           ("M-s L" . consult-line-multi)      ; needed by consult-line to detect isearch
-           )
+	   ;; Drop-in replacements
+	   ("C-x b" . consult-buffer)     ; orig. switch-to-buffer
+	   ("M-y"   . consult-yank-pop)   ; orig. yank-pop
+	   ;; Searching
+	   ("M-s r" . consult-ripgrep)
+	   ("M-s l" . consult-line)       ; Alternative: rebind C-s to use
+	   ("M-s s" . consult-line)       ; consult-line instead of isearch, bind
+	   ("M-s L" . consult-line-multi) ; isearch to M-s s
+	   ("M-s o" . consult-outline)
+	   ;; Isearch integration
+	   :map isearch-mode-map
+	   ("M-e" . consult-isearch-history)   ; orig. isearch-edit-string
+	   ("M-s e" . consult-isearch-history) ; orig. isearch-edit-string
+	   ("M-s l" . consult-line)            ; needed by consult-line to detect isearch
+	   ("M-s L" . consult-line-multi)      ; needed by consult-line to detect isearch
+	   )
     :config
     ;; Narrowing lets you restrict results to certain groups of candidates
     (setq consult-narrow-key "<"))
@@ -525,7 +510,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     :ensure t
     :after embark
     :after consult
-  )
+    )
 
   (use-package embark
     :ensure t
@@ -536,11 +521,11 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     ;; Add the option to run embark when using avy
     (defun bedrock/avy-action-embark (pt)
       (unwind-protect
-          (save-excursion
-            (goto-char pt)
-            (embark-act))
-        (select-window
-         (cdr (ring-ref avy-ring 0))))
+	  (save-excursion
+	    (goto-char pt)
+	    (embark-act))
+	(select-window
+	 (cdr (ring-ref avy-ring 0))))
       t)
 
     ;; After invoking avy-goto-char-timer, hit "." to run embark at the next
@@ -550,11 +535,11 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   (use-package embark-consult
     :ensure t)
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;;
-        ;;;   Minibuffer and completion
-        ;;;
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Minibuffer and completion
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; Vertico: better vertical completion for minibuffer commands
   (use-package vertico
@@ -567,7 +552,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     :ensure nil
     :after vertico
     :bind (:map vertico-map
-                ("M-DEL" . vertico-directory-delete-word)))
+		("M-DEL" . vertico-directory-delete-word)))
 
   ;; Marginalia: annotations for minibuffer
   (use-package marginalia
@@ -585,9 +570,9 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     (corfu-preview-current nil)    ;; Disable current candidate preview
     :bind
     (:map corfu-map
-          ("SPC" . corfu-insert-separator)
-          ("C-n" . corfu-next)
-          ("C-p" . corfu-previous)))
+	  ("SPC" . corfu-insert-separator)
+	  ("C-n" . corfu-next)
+	  ("C-p" . corfu-previous)))
 
   ;; Part of corfu
   (use-package corfu-popupinfo
@@ -640,11 +625,11 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     :config
     (setq completion-styles '(orderless)))
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        ;;;
-        ;;;   Misc. editing enhancements
-        ;;;
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;
+  ;;;   Misc. editing enhancements
+  ;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; Modify search results en masse
   (use-package wgrep
@@ -655,7 +640,6 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   (which-key-show-top-level)
 
 #+end_src
-
 
 * Configure TRAMP to your server
 
@@ -682,7 +666,6 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 #+end_src
 
-
 * Developer amenities
 
 #+begin_src emacs-lisp :tangle yes :results output none
@@ -705,9 +688,9 @@ Although knowing to work in Emacs is not required (since which-key is active, an
   ;;;
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (setq treesit-language-source-alist
-	'((r . ("https://github.com/r-lib/tree-sitter-r" "main" "src"))))
-
+(setq treesit-language-source-alist
+      '((r . ("https://github.com/r-lib/tree-sitter-r" "main" "src")))
+      '((nim . ("https://github.com/alaviss/tree-sitter-nim" "main" "src"))))
 
 
   (use-package emacs
@@ -779,10 +762,9 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     :config
     (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
     ;; Sometimes you need to tell Eglot where to find the language server
-					  ; (add-to-list 'eglot-server-programs
-					  ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+    ;; (add-to-list 'eglot-server-programs
+    ;;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
     (setq eglot-stay-out-of '(company))
-
 
     (defun company-R-objects--prefix ()
       (unless (ess-inside-string-or-comment-p)
@@ -819,7 +801,6 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 #+end_src
 
-
 * Citation management
 
 #+begin_src emacs-lisp :tangle yes :results output none
@@ -854,29 +835,20 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 
 #+end_src
 
-
 * Vim mode
 
 #+begin_src emacs-lisp :results output none :tangle no 
-
-  ;; Evil: vi emulation
   (use-package evil
     :ensure t
-
     :init
     (setq evil-respect-visual-line-mode t)
     (setq evil-undo-system 'undo-redo)
-
     ;; Enable this if you want C-u to scroll up, more like pure Vim
-					  ;(setq evil-want-C-u-scroll t)
-
+    ;;(setq evil-want-C-u-scroll t)
     :config
     (evil-mode)
-
     ;; Configuring initial major mode for some modes
     (evil-set-initial-state 'vterm-mode 'emacs))
-
-
 #+end_src
 
 * Org mode
@@ -896,7 +868,7 @@ Although knowing to work in Emacs is not required (since which-key is active, an
     (setq  org-startup-with-inline-images 'inlineimages)
     (setq org-image-actual-width `( ,(truncate (* (frame-pixel-width) 0.85))))
     (setq org-confirm-babel-evaluate nil)
-					  ;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
+    ;;(setq org-format-latex-options (plist-put org-format-latex-options :scale 2))
     (setq org-format-latex-options (plist-put nil :scale 1.0))
 
     :custom
@@ -1264,32 +1236,30 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
     )
 #+end_src
 
-
 * Copilot
 
 #+begin_src emacs-lisp :eval yes :tangle no 
-  ;; accept completion from copilot and fallback to company
+  (use-package quelpa)
+  (use-package quelpa-use-package)
+
   (use-package copilot
-    :ensure t
-    :hook (prog-mode . copilot-mode)
+    :quelpa (copilot :fetcher github
+		     :repo "copilot-emacs/copilot.el"
+		     :branch "main"
+		     :files ("*.el"))
     :bind (:map copilot-completion-map
 		("<tab>" . 'copilot-accept-completion)
 		("TAB" . 'copilot-accept-completion)
 		("C-TAB" . 'copilot-accept-completion-by-word)
 		("C-<tab>" . 'copilot-accept-completion-by-word)))
 
+  (add-hook 'prog-mode-hook 'copilot-mode)
 #+end_src
-
-#+RESULTS:
 
 
 * ESS
 
 #+begin_src emacs-lisp :results output none :tangle yes
-
-  (defun my-ess-mode-hook () (ess-switch-to-inferior-or-script-buffer t) ; Switch to ESS process buffer
-	 (ess-rdired)) ; Open ESS Dired
-
   (use-package ess
     :ensure t 
     :defer t
@@ -1349,52 +1319,70 @@ This is set up last as I could not find a way to auto-install svg-tag-mode, if i
     (define-key comint-mode-map (kbd "<down>") 'comint-next-matching-input-from-input)
 
     )
-#+end_src
 
+  (defun mb/org-babel-zoom-in ()
+    "Edit src block with lsp support by tangling the block and
+  then setting the org-edit-special buffer-file-name to the
+  absolute path. Finally load eglot."
+    (interactive)
+
+    ;; org-babel-get-src-block-info returns lang, code_src, and header
+    ;; params; Use nth 2 to get the params and then retrieve the :tangle
+    ;; to get the filename
+    (setq mb/tangled-file-name (expand-file-name (assoc-default :tangle (nth 2 (org-babel-get-src-block-info)))))
+
+    ;; tangle the src block at point
+    (org-babel-tangle '(4))
+    ;;(org-edit-special)
+    (org-babel-switch-to-session-with-code)
+
+    ;; Now we should be in the special edit buffer with python-mode. Set
+    ;; the buffer-file-name to the tangled file so that pylsp and
+    ;; plugins can see an actual file.
+    (setq-local buffer-file-name mb/tangled-file-name)
+    (ess-switch-to-inferior-or-script-buffer t) ; Switch to ESS process buffer
+    (ess-rdired)
+    (eglot-ensure)
+    )
+
+#+end_src
 
 * FORMULAS!
 
-
 $$ a=+\sqrt{2} $$
-
 
 * Support for the Nim language
 
 #+begin_src emacs-lisp :results output none :tangle yes
 
+(use-package nim-mode
+  :init
   (setenv "PATH" (concat (getenv "PATH") ":~/.nimble/bin"))
   (setq exec-path (append exec-path '("~/.nimble/bin")))
-
-  ;; The `nimsuggest-path' will be set to the value of
-  ;; (executable-find "nimsuggest"), automatically.
+  :config
   (setq nimsuggest-path "~/.nimble/bin/nimsuggest")
+  (setq nim-compile-command "/home/luis/.nimble/bin/nim")
 
-  (defun my--init-nim-mode ()
+  (lambda ()
     "Local init function for `nim-mode'."
-
-    ;; Just an example, by default these functions are
+    ;; Example: by default these functions are
     ;; already mapped to "C-c <" and "C-c >".
-    (local-set-key (kbd "M->") 'nim-indent-shift-right)
-    (local-set-key (kbd "M-<") 'nim-indent-shift-left)
+    ;;(local-set-key (kbd "M->") 'nim-indent-shift-right)
+    ;;(local-set-key (kbd "M-<") 'nim-indent-shift-left)
 
-    ;; Make files in the nimble folder read only by default.
-    ;; This can prevent to edit them by accident.
-    (when (string-match "/\.nimble/" (or (buffer-file-name) "")) (read-only-mode 1))
+    ;; Make files in the nimble folder read-only by default.
+    (when (string-match "/\\.nimble/" (or (buffer-file-name) "")) (read-only-mode 1))
 
-    ;; If you want to experiment, you can enable the following modes by
-    ;; uncommenting their line.
+    ;; Enable experimental modes
     (nimsuggest-mode 1)
-    ;; Remember: Only enable either `flycheck-mode' or `flymake-mode' at the same time.
+    ;; Remember: Only enable either `flycheck-mode' or `flymake-mode', not both.
     (flycheck-mode 1)
     ;; (flymake-mode 1)
 
-    ;; The following modes are disabled for Nim files just for the case
-    ;; that they are enabled globally.
-    ;; Anything that is based on smie can cause problems.
+    ;; Disable modes that may cause issues with Nim files
     (auto-fill-mode 0)
     (electric-indent-local-mode 0)
     )
-
-  (add-hook 'nim-mode-hook 'my--init-nim-mode)
+)
 
 #+end_src
