@@ -120,7 +120,7 @@ print(tableOne)
 | 55 (34.8)         | 54 (35.1)         |       |
 
 
-** You can leave the notebook, zoom into your code and program interactivelly
+** You can leave the notebook, zoom into your code and program interactively
 
 [[graphs/zoom_in.gif]]
 
@@ -141,7 +141,7 @@ print(tab)
 
 *** You can generate professional looking html reports
 
-Just use =M-x notebook-export-html=, this functionality was slightly modified using code from notebook model.
+Call =M-x notebook-export-html=, this functionality was slightly modified using code from notebook mode.
 
 * FORMULAS!
 
