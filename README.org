@@ -669,134 +669,135 @@ Although knowing to work in Emacs is not required (since which-key is active, an
 * Developer amenities
 
 #+begin_src emacs-lisp :tangle yes :results output none
-  ;;; This will try to use tree-sitter modes for many languages. Please run
-  ;;;
-  ;;;   M-x treesit-install-language-grammar
-  ;;;
-  ;;; Before trying to use a treesit mode.
+    ;;; This will try to use tree-sitter modes for many languages. Please run
+    ;;;
+    ;;;   M-x treesit-install-language-grammar
+    ;;;
+    ;;; Before trying to use a treesit mode.
 
-  ;;; Contents:
-  ;;;
-  ;;;  - Built-in config for developers
-  ;;;  - Version Control
-  ;;;  - Common file types
-  ;;;  - Eglot, the built-in LSP client for Emacs
+    ;;; Contents:
+    ;;;
+    ;;;  - Built-in config for developers
+    ;;;  - Version Control
+    ;;;  - Common file types
+    ;;;  - Eglot, the built-in LSP client for Emacs
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Built-in config for developers
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;
+    ;;;   Built-in config for developers
+    ;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(setq treesit-language-source-alist
-      '((r . ("https://github.com/r-lib/tree-sitter-r" "main" "src")))
-      '((nim . ("https://github.com/alaviss/tree-sitter-nim" "main" "src"))))
+  (setq treesit-language-source-alist
+        '((r . ("https://github.com/r-lib/tree-sitter-r" "main" "src")))
+        '((nim . ("https://github.com/alaviss/tree-sitter-nim" "main" "src"))))
 
 
-  (use-package emacs
-    :config
-    ;; Treesitter config
+    (use-package emacs
+      :config
+      ;; Treesitter config
 
-    ;; Tell Emacs to prefer the treesitter mode
-    ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
-    (setq major-mode-remap-alist
-	  '((yaml-mode . yaml-ts-mode)
-	    (bash-mode . bash-ts-mode)
-	    (js2-mode . js-ts-mode)
-	    (typescript-mode . typescript-ts-mode)
-	    (json-mode . json-ts-mode)
-	    (css-mode . css-ts-mode)
-	    (python-mode . python-ts-mode)))
-    :hook
-    ;; Auto parenthesis matching
-    (prog-mode . electric-pair-mode))
+      ;; Tell Emacs to prefer the treesitter mode
+      ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
+      (setq major-mode-remap-alist
+            '((yaml-mode . yaml-ts-mode)
+              (bash-mode . bash-ts-mode)
+              (js2-mode . js-ts-mode)
+              (typescript-mode . typescript-ts-mode)
+              (json-mode . json-ts-mode)
+	    ;;  (nim-mode . nim-ts-mode)
+              (css-mode . css-ts-mode)
+              (python-mode . python-ts-mode)))
+      :hook
+      ;; Auto parenthesis matching
+      (prog-mode . electric-pair-mode))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Version Control
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;
+    ;;;   Version Control
+    ;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  ;; Magit: best Git client to ever exist
-  (use-package magit
-    :ensure t
-    :bind (("C-x g" . magit-status)))
+    ;; Magit: best Git client to ever exist
+    (use-package magit
+      :ensure t
+      :bind (("C-x g" . magit-status)))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Common file types
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;
+    ;;;   Common file types
+    ;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (use-package markdown-mode
-    :hook ((markdown-mode . visual-line-mode)))
+    (use-package markdown-mode
+      :hook ((markdown-mode . visual-line-mode)))
 
-  (use-package yaml-mode
-    :ensure t)
+    (use-package yaml-mode
+      :ensure t)
 
-  (use-package json-mode
-    :ensure t)
+    (use-package json-mode
+      :ensure t)
 
-  ;; Emacs ships with a lot of popular programming language modes. If it's not
-  ;; built in, you're almost certain to find a mode for the language you're
-  ;; looking for with a quick Internet search.
+    ;; Emacs ships with a lot of popular programming language modes. If it's not
+    ;; built in, you're almost certain to find a mode for the language you're
+    ;; looking for with a quick Internet search.
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;;
-  ;;;   Eglot, the built-in LSP client for Emacs
-  ;;;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;
+    ;;;   Eglot, the built-in LSP client for Emacs
+    ;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  ;; Helpful resources:
-  ;;
-  ;;  - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
+    ;; Helpful resources:
+    ;;
+    ;;  - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
 
-  (use-package eglot
-    ;; no :ensure t here because it's built-in
-    :defer t
-    ;; Configure hooks to automatically turn-on eglot for selected modes
-    :custom
-    (eglot-send-changes-idle-time 0.1)
-    (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
+    (use-package eglot
+      ;; no :ensure t here because it's built-in
+      :defer t
+      ;; Configure hooks to automatically turn-on eglot for selected modes
+      :custom
+      (eglot-send-changes-idle-time 0.1)
+      (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
 
-    :config
-    (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
-    ;; Sometimes you need to tell Eglot where to find the language server
-    ;; (add-to-list 'eglot-server-programs
-    ;;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
-    (setq eglot-stay-out-of '(company))
+      :config
+      (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
+      ;; Sometimes you need to tell Eglot where to find the language server
+      ;; (add-to-list 'eglot-server-programs
+      ;;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+      (setq eglot-stay-out-of '(company))
 
-    (defun company-R-objects--prefix ()
-      (unless (ess-inside-string-or-comment-p)
-	(let ((start (ess-symbol-start)))
-	  (when start
-	    (buffer-substring-no-properties start (point))))))
+      (defun company-R-objects--prefix ()
+        (unless (ess-inside-string-or-comment-p)
+          (let ((start (ess-symbol-start)))
+            (when start
+              (buffer-substring-no-properties start (point))))))
 
-    (defun company-R-objects--candidates (arg)
-      (let ((proc (ess-get-next-available-process)))
-	(when proc
-	  (with-current-buffer (process-buffer proc)
-	    (all-completions arg (ess--get-cached-completions arg))))))
+      (defun company-R-objects--candidates (arg)
+        (let ((proc (ess-get-next-available-process)))
+          (when proc
+            (with-current-buffer (process-buffer proc)
+              (all-completions arg (ess--get-cached-completions arg))))))
 
-    (defun company-capf-with-R-objects--check-prefix (prefix)
-      (cl-search "$" prefix))
+      (defun company-capf-with-R-objects--check-prefix (prefix)
+        (cl-search "$" prefix))
 
-    (defun company-capf-with-R-objects (command &optional arg &rest ignored)
-      (interactive (list 'interactive))
-      (cl-case command
-	(interactive (company-begin-backend 'company-R-objects))
-	(prefix (company-R-objects--prefix))
-	(candidates (if (company-capf-with-R-objects--check-prefix arg)
-			(company-R-objects--candidates arg)
-		      (company-capf command arg)))
-	(annotation (if (company-capf-with-R-objects--check-prefix arg)
-			"R-object"
-		      (company-capf command arg)))
-	(kind (if (company-capf-with-R-objects--check-prefix arg)
-		  'field
-		(company-capf command arg)))
-	(doc-buffer (company-capf command arg))))
-    )
+      (defun company-capf-with-R-objects (command &optional arg &rest ignored)
+        (interactive (list 'interactive))
+        (cl-case command
+          (interactive (company-begin-backend 'company-R-objects))
+          (prefix (company-R-objects--prefix))
+          (candidates (if (company-capf-with-R-objects--check-prefix arg)
+                          (company-R-objects--candidates arg)
+                        (company-capf command arg)))
+          (annotation (if (company-capf-with-R-objects--check-prefix arg)
+                          "R-object"
+                        (company-capf command arg)))
+          (kind (if (company-capf-with-R-objects--check-prefix arg)
+                    'field
+                  (company-capf command arg)))
+          (doc-buffer (company-capf command arg))))
+      )
 
 
 #+end_src
@@ -1352,36 +1353,43 @@ $$ a=+\sqrt{2} $$
 
 * Support for the Nim language
 
-#+begin_src emacs-lisp :results output none :tangle yes
+#+begin_src emacs-lisp :results output none :tangle no 
 
-(use-package nim-mode
-  :init
-  (setenv "PATH" (concat (getenv "PATH") ":~/.nimble/bin"))
-  (setq exec-path (append exec-path '("~/.nimble/bin")))
-  :config
-  (setq nimsuggest-path "~/.nimble/bin/nimsuggest")
-  (setq nim-compile-command "/home/luis/.nimble/bin/nim")
+  (use-package nim-mode
+    :init
+    (setenv "PATH" (concat (getenv "PATH") ":~/.nimble/bin"))
+    (setq exec-path (append exec-path '("~/.nimble/bin")))
+    :config
+    (setq nimsuggest-path "~/.nimble/bin/nimsuggest")
+    (setq nim-compile-command "/home/luis/.nimble/bin/nim")
 
-  (lambda ()
-    "Local init function for `nim-mode'."
-    ;; Example: by default these functions are
-    ;; already mapped to "C-c <" and "C-c >".
-    ;;(local-set-key (kbd "M->") 'nim-indent-shift-right)
-    ;;(local-set-key (kbd "M-<") 'nim-indent-shift-left)
+    (lambda ()
+      "Local init function for `nim-mode'."
+      ;; Example: by default these functions are
+      ;; already mapped to "C-c <" and "C-c >".
+      ;;(local-set-key (kbd "M->") 'nim-indent-shift-right)
+      ;;(local-set-key (kbd "M-<") 'nim-indent-shift-left)
 
-    ;; Make files in the nimble folder read-only by default.
-    (when (string-match "/\\.nimble/" (or (buffer-file-name) "")) (read-only-mode 1))
+      ;; Make files in the nimble folder read-only by default.
+      (when (string-match "/\\.nimble/" (or (buffer-file-name) "")) (read-only-mode 1))
 
-    ;; Enable experimental modes
-    (nimsuggest-mode 1)
-    ;; Remember: Only enable either `flycheck-mode' or `flymake-mode', not both.
-    (flycheck-mode 1)
-    ;; (flymake-mode 1)
+      ;; Enable experimental modes
+      (nimsuggest-mode 1)
+      ;; Remember: Only enable either `flycheck-mode' or `flymake-mode', not both.
+      (flycheck-mode 1)
+      ;; (flymake-mode 1)
 
-    ;; Disable modes that may cause issues with Nim files
-    (auto-fill-mode 0)
-    (electric-indent-local-mode 0)
-    )
-)
+      ;; Disable modes that may cause issues with Nim files
+      (auto-fill-mode 0)
+      (electric-indent-local-mode 0)
+      )
+  )
+
+  (use-package nim-ts-mode 
+    :quelpa (nim-ts-mode :fetcher github
+                     :repo "lf-araujo/nim-ts-mode"
+                     :branch "master"
+                     :files ("*.el"))
+  )
 
 #+end_src
